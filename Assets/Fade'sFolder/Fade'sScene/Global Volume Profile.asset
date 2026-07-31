@@ -21,7 +21,7 @@ MonoBehaviour:
     m_Value: 0.9
   intensity:
     m_OverrideState: 1
-    m_Value: 1.4
+    m_Value: 1.88
   scatter:
     m_OverrideState: 1
     m_Value: 0
@@ -80,10 +80,10 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 4.8
+    m_Value: 2.05
   tintColor:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 0.7725491, g: 0.83921576, b: 0.854902, a: 1}
   bloomMip:
     m_OverrideState: 0
     m_Value: 1
