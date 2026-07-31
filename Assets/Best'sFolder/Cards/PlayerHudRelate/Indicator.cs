@@ -12,6 +12,13 @@ public class Indicator : MonoBehaviour
     {
         instance = this;
     }
+    private void Update()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            cancle();
+        }
+    }
     public void Move(Transform target , string name, string suits)
     {
         Cg.DOKill();
@@ -20,6 +27,8 @@ public class Indicator : MonoBehaviour
     }
     public void cancle()
     {
-        Cg.DOFade(0f, 0.25f).SetEase(Ease.OutSine);
+        Cg.DOKill();
+        Cg.DOFade(0f, 0.25f).SetEase(Ease.OutSine); 
+        wtc.worldTarget = null;
     }
 }
