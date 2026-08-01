@@ -45,16 +45,10 @@ public class PlayManager : MonoBehaviour
     {
         instance = this;
     }
-    public void PlayAsDefend(List<CardObj> defend)
-    {
-        foreach (CardObj obj in defend)
-        {
-            obj.card.TriggerPlayAsDefender();
-        }
-
-    }
     public void DefendButtonPressed()
     {
+        if (Isdefended) return;
+        Isdefended = true;
         List<CardObj> Defender = new List<CardObj>();
         if (HandOrganizer.Instance.selectedCards.Count != 0)
         {
@@ -64,18 +58,23 @@ public class PlayManager : MonoBehaviour
         {
             HandOrganizer.Instance.selectedCards.Remove(obj);
         }
-        DisplayField.Instance.DisplayAndProcess(
+        int DefencePower = 0;
+            DisplayField.Instance.DisplayAndProcess(
             Defender,
             (card) =>
             {
-                card.card.TriggerPlayAsDefender();
+                DefencePower += card.card.CalculateDefendpoint(card.card.Rank);
+                EventBus<CardDefenderEvent>.Raise(new CardDefenderEvent { Card = card.card, Enemy = EncounterManager.instance.CurrentEnemy });
                 EncounterManager.instance.Defendpoint += card.card.CalculateDefendpoint(card.card.Rank);
-
             },
             (completedCards) =>
             {
                 MoveToGraveYard(completedCards);
             });
+        if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(EncounterManager.instance.CurrentEnemy.card.Power))
+        {
+            Debug.Log("Loose nigger");
+        }
     }
     public async void MoveToGraveYard(List<CardObj> cardo)
     {
@@ -121,7 +120,7 @@ public class PlayManager : MonoBehaviour
         DisplayField.Instance.DisplayAndProcess(ca, 
             (card) =>
         {
-            card.card.TriggerPlayAsDefender();
+
             EncounterManager.instance.CalculatePlayerDamage(card.card.Rank);
 
         },
@@ -137,8 +136,11 @@ public class PlayManager : MonoBehaviour
 
         if (HandOrganizer.Instance.selectedCards.Count > 1) return;
 
+        Isdefended = false;
         CardObj card = HandOrganizer.Instance.selectedCards[0];
         Playcard(card);
+        EncounterManager.instance.CurrentEnemy.card.TakeDamage(
+            EncounterManager.instance.CalculatePlayerDamage(card.card.Rank));
         EventBus<CardAttackerEvent>.Raise(new CardAttackerEvent { Card = card.card , Enemy = EncounterManager.instance.CurrentEnemy });
     }
 }

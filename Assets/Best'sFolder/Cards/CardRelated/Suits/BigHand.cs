@@ -4,11 +4,25 @@ public class BigHand : Suit
 {
     public override void Enable()
     {
+        foreach (CardObj card in Tavern.instance.card)
+        {
+            if (card.card.suits.Contains(this))
+            {
+                HandOrganizer.Instance.Maxhand += 1;
+            }
+        }
         EventBus<CardMoveToTavern>.Register(AddHand);
         EventBus<CardMoveOutOfTavern>.Register(RemoveHand);
     }
     public override void Disable()
     {
+        foreach (CardObj card in Tavern.instance.card)
+        {
+            if (card.card.suits.Contains(this))
+            {
+                HandOrganizer.Instance.Maxhand -= 1;
+            }
+        }
         EventBus<CardMoveToTavern>.Unregister(AddHand);
         EventBus<CardMoveOutOfTavern>.Unregister(RemoveHand);
     }

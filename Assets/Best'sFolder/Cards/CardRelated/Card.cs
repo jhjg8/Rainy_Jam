@@ -26,13 +26,4 @@ public class Card : MonoBehaviour
         }
         return newvalue;
     }
-    // --- Event Bus Triggers ---
-
-    public void TriggerPlayAsAttacker()
-    {
-    }
-
-    public void TriggerPlayAsDefender()
-    {
-    }
 }

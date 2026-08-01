@@ -45,6 +45,7 @@ public class EnemyCard : MonoBehaviour
             int ran = EncounterManager.instance.DificaultyLevel + UnityEngine.Random.Range(-5, 4) - suits.Count;
             var card = CardManager.instance.createObj(ran, transform.position, suits);
             Graveyard.instance.AddCardToDeck(card.GetComponent<CardObj>());
+            PlayManager.instance.Isdefended = true;
             Destroy(gameObject);
         }
     }

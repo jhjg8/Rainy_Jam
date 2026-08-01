@@ -47,9 +47,10 @@ public class EncounterManager : MonoBehaviour
     {
         Ho = HandOrganizer.Instance;
     }
-    public void StartFight()
+    public void StartFight(EnemyCardObject Eo)
     {
-        CurrentEnemy = CreateEnemyCard(enemypos.position).GetComponent<EnemyCardObject>();
+        CurrentEnemy = Eo;
+        CurrentEnemy.Belong = enemypos.position;
         EnemyCard enemy = CurrentEnemy.GetComponent<EnemyCard>();
         foreach (var suit in enemy.suits)
         {

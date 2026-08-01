@@ -19,6 +19,7 @@ public class CycleManager : MonoBehaviour
     private void Start()
     {
         CurrentPhase = Phase.FightPhase;
-        EncounterManager.instance.StartFight();
+        GameObject Go = EncounterManager.instance.CreateEnemyCard(new Vector3 (0,0,0));
+        EncounterManager.instance.StartFight(Go.GetComponent<EnemyCardObject>());
     }
 }
