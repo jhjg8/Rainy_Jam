@@ -180,7 +180,7 @@ Transform:
   m_GameObject: {fileID: 347405997}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 4.53, y: 0.3, z: -2.45}
+  m_LocalPosition: {x: 11.41, y: 0.3, z: -2.68}
   m_LocalScale: {x: 0.19285713, y: 0.07714286, z: 0.27}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -298,12 +298,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardObj
   card: {fileID: 347406004}
   Belong: {x: 0, y: 0, z: 0}
-  speed: 2
+  BelongR: {x: 0, y: 0, z: 0}
+  pos: 4
+  speed: 0.2
   SuitPlacement: []
   MR: {fileID: 347406000}
+  M: {fileID: 0}
   RankText: {fileID: 1192334377}
   NameText: {fileID: 1166326477}
+  selectable: 1
+  isbacked: 1
   canmove: 1
+--- !u!1 &450502237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 450502238}
+  m_Layer: 0
+  m_Name: HandCenterPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &450502238
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450502237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: -4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &514152463
 GameObject:
   m_ObjectHideFlags: 0
@@ -1377,6 +1413,8 @@ GameObject:
   - component: {fileID: 1585542452}
   - component: {fileID: 1585542454}
   - component: {fileID: 1585542455}
+  - component: {fileID: 1585542456}
+  - component: {fileID: 1585542457}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1475,7 +1513,10 @@ MonoBehaviour:
   - Zahara
   - Zane
   - Zoran
-  template: {fileID: 0}
+  template: {fileID: 347405997}
+  Back: {fileID: 2100000, guid: 1146edc900a697a4088af520712dc0eb, type: 2}
+  CardImage:
+  - {fileID: 2100000, guid: d6ac843bd7c9dbe4aba8e47a67b40a8a, type: 2}
   allsuits: []
 --- !u!4 &1585542453
 Transform:
@@ -1524,6 +1565,37 @@ MonoBehaviour:
   smoothMoveTime: 0.15
   moveEase: 6
   smoothRotateTime: 0.25
+--- !u!114 &1585542456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585542451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dc276d2ffe201d42b29a87a55e29850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayManager
+--- !u!114 &1585542457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585542451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75cff8909b16f5144a577d2079d5beb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandOrganizer
+  handCenterPoint: {fileID: 450502238}
+  cardSpacing: 1.2
+  selectionOffset: 0.5
+  fanAngle: 3
+  curveHeight: 0.1
+  maxSelectableCards: 8
+  cardsInHand: []
 --- !u!1 &1662359141
 GameObject:
   m_ObjectHideFlags: 0
@@ -2045,3 +2117,4 @@ SceneRoots:
   - {fileID: 1879263487}
   - {fileID: 347405998}
   - {fileID: 1585542453}
+  - {fileID: 450502238}

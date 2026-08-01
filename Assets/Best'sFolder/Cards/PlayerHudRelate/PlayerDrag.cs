@@ -69,6 +69,14 @@ public class PlayerDrag : MonoBehaviour
         if (isDragging && currentTarget != null)
         {
             MoveAndRotateSmoothly();
+            if(Input.GetMouseButtonUp(0))
+            {
+                if(currentTarget.gameObject.TryGetComponent<CardObj>(out CardObj Co))
+                {
+                    Co.ResetPos();
+                }
+                StopDrag();
+            }
         }
     }
 
@@ -101,7 +109,7 @@ public class PlayerDrag : MonoBehaviour
 
             if (direction.sqrMagnitude > 0.01f)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                Quaternion targetRotation = Quaternion.LookRotation(-direction);
                 Vector3 targetEuler = targetRotation.eulerAngles;
 
                 if (rotateTween == null || !rotateTween.IsActive())

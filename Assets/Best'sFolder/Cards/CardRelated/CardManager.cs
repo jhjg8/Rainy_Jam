@@ -86,6 +86,8 @@ public class CardManager : MonoBehaviour
                               "Zane",
                               "Zoran"};
     [SerializeField] private GameObject template;
+    public Material Back;
+    public List<Material> CardImage;
 
     public List<Suit> allsuits;
     private void Awake()
@@ -113,5 +115,4 @@ public class CardManager : MonoBehaviour
         n.SetActive(true);
         return n;
     }
-    
 }
