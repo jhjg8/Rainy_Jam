@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Diamond
   id: Dia
   Name: name
-  icon: {fileID: 0}
+  Description: description
+  icon: {fileID: 2100000, guid: 5904c33275e705c42b97613e0da090a8, type: 2}

@@ -4,6 +4,7 @@ public class Suit : ScriptableObject
 {
     public string id = "";
     public string Name = "name";
+    public string Description = "description";
     public Material icon;
     protected CardObj CO;
     protected Card C;

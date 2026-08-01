@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Club
   id: Clu
   Name: name
-  icon: {fileID: 0}
+  Description: description
+  icon: {fileID: 2100000, guid: 29fc23246de8c4941a1e78f6a788d3cb, type: 2}
