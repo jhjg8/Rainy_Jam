@@ -23,6 +23,6 @@ public class Club : Suit
     public void Attack(CardAttackerEvent payload)
     {
         if (!payload.Card.suits.Contains(this)) return;
-        payload.Card.Calculate += Twotimes;
+        EncounterManager.instance.CalculatePlayerDamage += Twotimes;
     }
 }
