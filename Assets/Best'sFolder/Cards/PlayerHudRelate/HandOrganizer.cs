@@ -19,7 +19,7 @@ public class HandOrganizer : MonoBehaviour
 
     [Header("Cards List")]
     public List<CardObj> cardsInHand = new List<CardObj>();
-    private List<CardObj> selectedCards = new List<CardObj>();
+    public List<CardObj> selectedCards = new List<CardObj>();
 
     private void Awake()
     {
@@ -118,7 +118,7 @@ public class HandOrganizer : MonoBehaviour
 
             // 4. Balatro Fan Rotation
             float zRotation = -normalizedIndex * fanAngle;
-            Vector3 targetRotation = new Vector3(0, 0, zRotation);
+            Vector3 targetRotation = new Vector3(0, i * 0.01f, zRotation);
 
             // Set variables on CardObj
             card.Belong = targetPosition;

@@ -75,6 +75,11 @@ public class EncounterManager : MonoBehaviour
         {
             c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(0, CardManager.instance.allsuits.Count)]);
         }
+        int points = UnityEngine.Random.Range(DificaultyLevel - 5, DificaultyLevel + 5) - suitsCount + 5;
+        int split = UnityEngine.Random.Range(DificaultyLevel / 2, points);
+        c.card.Health = (split * 10);
+        c.card.Power = ((points - split) * 4);
+
         return card;
     }
     public void Endfight()

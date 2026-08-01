@@ -16,7 +16,16 @@ public class Card : MonoBehaviour
         suits = GetComponents<Suit>().ToList();
     }
 
-
+    public int CalculateEnemyDmg(int dmg)
+    {
+        if (CalculateDef == null) return dmg;
+        int newvalue = dmg;
+        foreach (Func<int, int> handler in CalculateDef.GetInvocationList())
+        {
+            newvalue = handler.Invoke(newvalue);
+        }
+        return newvalue;
+    }
     // --- Event Bus Triggers ---
 
     public void TriggerPlayAsAttacker()

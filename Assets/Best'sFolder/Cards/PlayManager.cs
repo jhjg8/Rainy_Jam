@@ -15,4 +15,11 @@ public class PlayManager : MonoBehaviour
         }
 
     }
+    public void DefendButtonPressed()
+    {
+        if (HandOrganizer.Instance.selectedCards.Count != 0)
+        {
+
+        }
+    }
 }

@@ -28,6 +28,18 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
         BelongR = transform.rotation.eulerAngles;
         MR = GetComponent<MeshRenderer>();
         ResetPos();
+        for (int i = 0; i < SuitsIcon.Length; i++)
+        {
+            if (card.suits[i] != null)
+            {
+                SuitsIcon[i].gameObject.SetActive(true);
+                SuitsIcon[i].materials[0] = card.suits[i].icon;
+            }
+            else
+            {
+                SuitsIcon[i].gameObject.SetActive(false);
+            }
+        }
     }
 
     public virtual void ResetPos()

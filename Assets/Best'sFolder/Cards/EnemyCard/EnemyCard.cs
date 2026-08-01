@@ -37,7 +37,11 @@ public class EnemyCard : MonoBehaviour
         Health -= dmg;
         if (Health <= 0)
         {
-
+            EncounterManager.instance.Endfight();
+            foreach(Suit suit in suits)
+            {
+                suit.DisableForEnemy();
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ public class CycleManager : MonoBehaviour
 {
     public enum Phase { BuyPhase , FightPhase};
     public Phase CurrentPhase;
+
     public void ChangePhase()
     {
         if (CurrentPhase == Phase.BuyPhase)

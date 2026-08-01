@@ -61,6 +61,10 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
         if (!selectable) return;
         PlayerDrag.Instance.StartDrag(transform);
         canmove = false;
+        if (pos == CardManager.position.hand)
+        {
+            HandOrganizer.Instance.ToggleSelectCard(this);
+        }
     }
 
     public virtual void MouseUp()
@@ -68,6 +72,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
         if (!selectable) return;
         PlayerDrag.Instance.StopDrag();
         canmove = true;
+        HandOrganizer.Instance.ReorderCardByPosition(this);
         ResetPos() ;
     }
     public void Show()
