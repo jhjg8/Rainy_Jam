@@ -26,18 +26,19 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _dissolveamount: 1.53
+    - _Float: 0.2
+    - _dissolveamount: 3.3
     - _dsc: 5
     - _dstr: 5
-    - _eg: 15.87
-    - _g: 8.88
-    - _noisescale: 6.21
+    - _eg: 41.59
+    - _g: 1.67
+    - _noisescale: 7.95
     - _scolling: 0.022
-    - _thickness: 0.4
+    - _thickness: 0.16
     m_Colors:
-    - _Color: {r: 1, g: 0, b: 0, a: 1}
+    - _Color: {r: 1, g: 0.66165113, b: 0, a: 1}
     - _dsst: {r: 3, g: 3, b: 0, a: 0}
-    - _ec: {r: 0, g: 1, b: 0.10441756, a: 1}
+    - _ec: {r: 0, g: 0, b: 0, a: 1}
     - _scoll: {r: 2, g: 2, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
