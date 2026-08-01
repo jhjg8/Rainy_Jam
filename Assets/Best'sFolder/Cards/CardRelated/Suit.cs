@@ -5,7 +5,7 @@ public class Suit : ScriptableObject
     public string id = "";
     public string Name = "name";
     public string Description = "description";
-    public Material icon;
+    public Texture icon;
     protected CardObj CO;
     protected Card C;
     protected virtual void Update()

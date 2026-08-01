@@ -16,10 +16,10 @@ public class Card : MonoBehaviour
         suits = GetComponents<Suit>().ToList();
     }
 
-    public int CalculateEnemyDmg(int dmg)
+    public int CalculateDefendpoint(int point)
     {
-        if (CalculateDef == null) return dmg;
-        int newvalue = dmg;
+        if (CalculateDef == null) return point;
+        int newvalue = point;
         foreach (Func<int, int> handler in CalculateDef.GetInvocationList())
         {
             newvalue = handler.Invoke(newvalue);
@@ -30,13 +30,9 @@ public class Card : MonoBehaviour
 
     public void TriggerPlayAsAttacker()
     {
-        // Broadcasts to the entire game that THIS card attacked
-        EventBus<CardAttackerEvent>.Raise(new CardAttackerEvent { Card = this,Enemy = EncounterManager.instance.CurrentEnemy }); 
     }
 
     public void TriggerPlayAsDefender()
     {
-        // Broadcasts to the entire game that THIS card defended
-        EventBus<CardDefenderEvent>.Raise(new CardDefenderEvent { Card = this, Enemy = EncounterManager.instance.CurrentEnemy });
     }
 }

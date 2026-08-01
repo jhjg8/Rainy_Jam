@@ -1,5 +1,7 @@
 using System;
+using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 public struct CardAttackerEvent
 {
     public Card Card;
@@ -20,13 +22,19 @@ public class EncounterManager : MonoBehaviour
     [SerializeField] private Transform enemypos;
 
     public EnemyCardObject CurrentEnemy;
-    
+    public List<Texture> DiamondCard;
+    public List<Texture> SpadesCard;
+    public List<Texture> HeartCard;
+    public List<Texture> ClubCard;
 
     public int DificaultyLevel = 1;
     public static EncounterManager instance;
 
     public Func<int, int> CalculateEnemyDamage;
     public Func<int, int> CalculatePlayerDamage;
+
+    public int Defendpoint;
+    public TextMeshProUGUI text;
 
     private void Awake()
     {
@@ -73,7 +81,36 @@ public class EncounterManager : MonoBehaviour
         }
         for (int i = 0;i < suitsCount; i++)
         {
-            c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(0, CardManager.instance.allsuits.Count)]);
+            if (i == 0)
+                c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(0, 4)]);
+
+            else
+            {
+                while (true) {
+                    Suit s = CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)];
+                    if (s == null) break;
+                    if (!c.card.suits.Contains(s)) break;
+                }
+                c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)]);
+            }
+        }
+        Suit firstSuit = c.card.suits[0];
+
+        if (firstSuit == CardManager.instance.allsuits[0])
+        {
+            card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", ClubCard[UnityEngine.Random.Range(0, ClubCard.Count)]);
+        }
+        else if (firstSuit == CardManager.instance.allsuits[1])
+        {
+            card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", DiamondCard[UnityEngine.Random.Range(0, DiamondCard.Count)]);
+        }
+        else if (firstSuit == CardManager.instance.allsuits[2])
+        {
+            card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", HeartCard[UnityEngine.Random.Range(0, HeartCard.Count)]);
+        }
+        else if (firstSuit == CardManager.instance.allsuits[3])
+        {
+            card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", SpadesCard[UnityEngine.Random.Range(0, SpadesCard.Count)]);
         }
         int points = UnityEngine.Random.Range(DificaultyLevel - 5, DificaultyLevel + 5) - suitsCount + 5;
         int split = UnityEngine.Random.Range(DificaultyLevel / 2, points);

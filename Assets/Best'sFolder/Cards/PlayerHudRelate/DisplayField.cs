@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,15 +7,14 @@ public class DisplayField : MonoBehaviour
 {
     public static DisplayField Instance { get; private set; }
 
-    [Header("Field Settings")]
-    public Transform fieldCenterPoint;    // The center point of your field
-    public float maxFieldLength = 10f;    // The maximum total width the cards are allowed to take up
-    public float maxCardSpacing = 2f;     // The default space between cards before the field gets crowded
-    public float popUpOffset = 2f;      // How high the card pops up when toggled
+    [Header("Display Layout Settings")]
+    public Transform displayCenterPoint;
+    public float maxDisplayLength = 10f;
+    public float maxCardSpacing = 2f;
 
-    [Header("Cards List")]
-    public List<CardObj> cardsOnField = new List<CardObj>();
-    private List<CardObj> poppedCards = new List<CardObj>(); // Tracks which cards are currently popped up
+    [Header("Default Timing Settings")]
+    public float defaultInitialWait = 1f; // How long to wait before starting the loop
+    public float defaultLoopSpeed = 0.3f; // Delay between processing each card
 
     private void Awake()
     {
@@ -26,100 +27,68 @@ public class DisplayField : MonoBehaviour
     }
 
     /// <summary>
-    /// Adds a card to the field and reorganizes the layout.
+    /// Arranges a list of cards, waits a moment, processes them one by one, then fires an OnComplete action.
     /// </summary>
-    public void AddCardToField(CardObj card)
+    public void DisplayAndProcess(List<CardObj> cardsToDisplay, Action<CardObj> onCardProcess, Action<List<CardObj>> onComplete)
     {
-        if (!cardsOnField.Contains(card))
+        if (cardsToDisplay == null || cardsToDisplay.Count == 0)
         {
-            cardsOnField.Add(card);
-            card.Pos = CardManager.position.field; // Update card's state to field
-            OrganizeField();
+            // If the list is empty, just trigger completion immediately
+            onComplete?.Invoke(cardsToDisplay);
+            return;
         }
+
+        StartCoroutine(DisplayRoutine(cardsToDisplay, onCardProcess, onComplete));
     }
 
-    /// <summary>
-    /// Removes a card from the field and reorganizes the layout.
-    /// </summary>
-    public void RemoveCardFromField(CardObj card)
+    private IEnumerator DisplayRoutine(List<CardObj> cards, Action<CardObj> onCardProcess, Action<List<CardObj>> onComplete)
     {
-        if (cardsOnField.Contains(card))
-        {
-            cardsOnField.Remove(card);
-            if (poppedCards.Contains(card))
-            {
-                poppedCards.Remove(card);
-            }
-            OrganizeField();
-        }
-    }
+        int count = cards.Count;
+        Vector3 centerPos = displayCenterPoint != null ? displayCenterPoint.position : transform.position;
 
-    /// <summary>
-    /// Toggles the pop-up state of a specific card (moves it slightly up/forward).
-    /// </summary>
-    public void TogglePopCard(CardObj card)
-    {
-        if (!cardsOnField.Contains(card)) return;
-
-        if (poppedCards.Contains(card))
-        {
-            poppedCards.Remove(card); // Un-pop
-        }
-        else
-        {
-            poppedCards.Add(card);    // Pop up
-        }
-
-        OrganizeField();
-    }
-
-    /// <summary>
-    /// Recalculates Belong and BelongR for all cards on the field to fit within the max length.
-    /// </summary>
-    public void OrganizeField()
-    {
-        int count = cardsOnField.Count;
-        if (count == 0) return;
-
-        Vector3 centerPos = fieldCenterPoint != null ? fieldCenterPoint.position : transform.position;
-
-        // 1. Calculate Spacing
-        // Default to maxCardSpacing, but shrink it if the cards would exceed maxFieldLength
+        // 1. Calculate Spacing (Same layout math to keep them inside max length)
         float currentSpacing = maxCardSpacing;
         if (count > 1)
         {
             float requiredWidth = (count - 1) * maxCardSpacing;
-            if (requiredWidth > maxFieldLength)
+            if (requiredWidth > maxDisplayLength)
             {
-                currentSpacing = maxFieldLength / (count - 1);
+                currentSpacing = maxDisplayLength / (count - 1);
             }
         }
 
-        // 2. Calculate starting X position so the entire line stays centered
         float startX = -(currentSpacing * (count - 1)) / 2f;
 
+        // 2. Assign positions and trigger DOTween move
         for (int i = 0; i < count; i++)
         {
-            CardObj card = cardsOnField[i];
+            CardObj card = cards[i];
 
-            // 3. Apply Y offset if the card is "popped up"
-            float yOffset = poppedCards.Contains(card) ? popUpOffset : 0f;
+            Vector3 targetPosition = centerPos + new Vector3(startX + (i * currentSpacing), 0f, -i * 0.01f);
 
-            // Target Position (Straight line, overlapping slightly on Z axis to prevent Z-fighting)
-            Vector3 targetPosition = centerPos + new Vector3(startX + (i * currentSpacing), yOffset, i * 0.01f);
-
-            // Target Rotation (Completely flat, no fan effect)
-            Vector3 targetRotation = Vector3.zero;
-
-            // Set variables on CardObj
             card.Belong = targetPosition;
-            card.BelongR = targetRotation;
+            card.BelongR = Vector3.zero;
 
-            // Trigger DOTween smooth move inside CardObj
             if (card.canmove)
             {
                 card.ResetPos();
             }
         }
+
+        // 3. Wait a short time for cards to reach their display positions
+        yield return new WaitForSeconds(defaultInitialWait);
+
+        // 4. Loop through every card, execute the method, and wait
+        for (int i = 0; i < count; i++)
+        {
+            // Invoke the specific method for this card
+            onCardProcess?.Invoke(cards[i]);
+
+            // Wait for the assigned loop speed before going to the next card
+            yield return new WaitForSeconds(defaultLoopSpeed);
+        }
+
+        // 5. Finished looping! Call the OnComplete function
+        onComplete?.Invoke(cards);
     }
 }

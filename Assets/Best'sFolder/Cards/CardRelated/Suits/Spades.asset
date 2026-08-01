@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Spades
   m_EditorClassIdentifier: Assembly-CSharp::Spades
   id: Spa
-  Name: name
-  Description: description
-  icon: {fileID: 2100000, guid: 5630c3c7bd2bd9d42afd96822b9eb6c9, type: 2}
+  Name: Spades
+  Description: 'Lower enemy''s dmg on player (Rank depended) '
+  icon: {fileID: 2800000, guid: 1325dcc7f2ee5fd438894d0ae44725ed, type: 3}

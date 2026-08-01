@@ -35,6 +35,7 @@ public class Field : MonoBehaviour
             cardsOnField.Add(card);
             card.Pos = CardManager.position.field; // Update card's state to field
             OrganizeField();
+            EventBus<CardMoveToField>.Raise(new CardMoveToField { Card = card.card });
         }
     }
 
@@ -51,6 +52,7 @@ public class Field : MonoBehaviour
                 poppedCards.Remove(card);
             }
             OrganizeField();
+            EventBus<CardMoveOutOfField>.Raise(new CardMoveOutOfField { Card = card.card });
         }
     }
 

@@ -42,6 +42,7 @@ public class HandOrganizer : MonoBehaviour
             card.Pos = CardManager.position.hand;
             OrganizeHand();
         }
+        EventBus<CardMoveToHand>.Raise(new CardMoveToHand { Card = card.card });
     }
 
     /// <summary>
@@ -58,6 +59,7 @@ public class HandOrganizer : MonoBehaviour
             }
             OrganizeHand();
         }
+        EventBus<CardMoveOutOfHand>.Raise(new CardMoveOutOfHand { Card = card.card });
     }
 
     /// <summary>

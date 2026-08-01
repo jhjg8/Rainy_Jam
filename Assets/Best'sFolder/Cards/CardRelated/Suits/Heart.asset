@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Heart
   m_EditorClassIdentifier: Assembly-CSharp::Heart
   id: Hea
-  Name: name
-  Description: description
-  icon: {fileID: 2100000, guid: 4d27b00a79de6c84db05f240d3116323, type: 2}
+  Name: Heart
+  Description: Take agents in Graveyard deck back to Tavern deck (Rank depended)
+  icon: {fileID: 2800000, guid: da49e5b2c2793a740bdafb07241bc8b3, type: 3}

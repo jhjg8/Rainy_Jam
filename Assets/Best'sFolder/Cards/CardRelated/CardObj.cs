@@ -36,8 +36,8 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
 
         if (Belong == null || !canmove) return;
         transform.DOKill();
-        transform.DOMove(Belong, speed).SetEase(Ease.OutSine);
-        transform.DORotate(BelongR, speed).SetEase(Ease.OutSine);
+        transform.DOMove(Belong, speed).SetEase(Ease.OutSine).SetSpeedBased();
+        transform.DORotate(BelongR, speed).SetEase(Ease.OutSine).SetSpeedBased();
     }
     public virtual void MouseEnter()
     {
@@ -84,7 +84,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
             if (card.suits[i] != null)
             {
                 SuitsIcon[i].gameObject.SetActive(true);
-                SuitsIcon[i].materials[0] = card.suits[i].icon;
+                SuitsIcon[i].materials[0].SetTexture("_mt", card.suits[i].icon);
             }
             else
             {

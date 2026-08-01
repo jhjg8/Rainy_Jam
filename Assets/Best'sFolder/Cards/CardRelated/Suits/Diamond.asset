@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Diamond
   m_EditorClassIdentifier: Assembly-CSharp::Diamond
   id: Dia
-  Name: name
-  Description: description
-  icon: {fileID: 2100000, guid: 5904c33275e705c42b97613e0da090a8, type: 2}
+  Name: Diamond
+  Description: Take agents in Tavern into hand (Rank depended)
+  icon: {fileID: 2800000, guid: 8f2fd92c2d787e645bcb24e65c8b3f7a, type: 3}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 public class Decker : MonoBehaviour
 {
     public List<CardObj> card = new List<CardObj>();
-    [SerializeField] float spacing = 0.01f;
+    [SerializeField] float spacing = 0.001f;
     [SerializeField] Transform Deck;
     public virtual void AddCardToDeck(CardObj Co)
     {
@@ -28,7 +28,7 @@ public class Decker : MonoBehaviour
         {
             if (Co != null)
             {
-                Co.Belong = Deck.position + new Vector3(Deck.transform.position.x, Deck.transform.position.y + (i * 0.001f), Deck.transform.position.z + (i * spacing));
+                Co.Belong = Deck.position + new Vector3(Deck.transform.position.x, Deck.transform.position.y + (i * 0.01f), Deck.transform.position.z + (i * spacing));
                 i++;
                 if (i == card.Count)
                 {
