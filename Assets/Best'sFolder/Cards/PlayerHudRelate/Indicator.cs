@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 public class Indicator : MonoBehaviour
@@ -7,10 +8,13 @@ public class Indicator : MonoBehaviour
     [SerializeField] TextMeshProUGUI Cardside;
     [SerializeField] TextMeshProUGUI Suits;
     [SerializeField] CanvasGroup Cg;
+    [SerializeField] private Image targetImage;
     public static Indicator instance;
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+            instance = this;
+
     }
     private void Update()
     {
@@ -19,11 +23,23 @@ public class Indicator : MonoBehaviour
             cancle();
         }
     }
-    public void Move(Transform target , string name, string suits)
+    public void Move(Transform target , string name, string suits, bool blue)
     {
+        if (wtc.worldTarget == target) return;
         Cg.DOKill();
+        targetImage.DOKill();
         Cg.DOFade(1f, 0.25f).SetEase(Ease.OutSine);
-        wtc.worldTarget = target;
+        if (blue)
+        {
+            Color color = Color.blue; 
+            targetImage.DOColor(color, 0.3f);
+        }
+        else
+        {
+            Color color = Color.red;
+            targetImage.DOColor(color, 0.3f);
+        }
+            wtc.worldTarget = target;
     }
     public void cancle()
     {

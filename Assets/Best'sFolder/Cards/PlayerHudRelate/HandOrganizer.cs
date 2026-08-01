@@ -12,6 +12,7 @@ public class HandOrganizer : MonoBehaviour
     public float selectionOffset = 0.5f; // How high a card pops up when selected
     public float fanAngle = 3f;        // Rotation fan effect for Balatro look
     public float curveHeight = 0.1f;    // Arch height for Balatro curved layout
+    public int Maxhand = 8;
 
     [Header("Selection Rules")]
     public int maxSelectableCards = 8;  // Balatro limit (e.g., 5 cards max for playing/discarding)
@@ -35,7 +36,7 @@ public class HandOrganizer : MonoBehaviour
     /// </summary>
     public void AddCardToHand(CardObj card)
     {
-        if (!cardsInHand.Contains(card))
+        if (!cardsInHand.Contains(card) && cardsInHand.Count <= Maxhand)
         {
             cardsInHand.Add(card);
             card.Pos = CardManager.position.hand;
@@ -172,5 +173,10 @@ public class HandOrganizer : MonoBehaviour
     {
         cardsInHand = cardsInHand.OrderBy(c => c.card.suits.FirstOrDefault()?.Name).ToList();
         OrganizeHand();
+    }
+    public void ShuffleHand()
+    {
+        cardsInHand.Shuffle(); 
+        OrganizeHand();      
     }
 }

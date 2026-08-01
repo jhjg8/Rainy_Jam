@@ -11,14 +11,14 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     public CardManager.position Pos { get { return pos; } set { pos = value; } }
     [SerializeField] float speed = 0.2f;
 
-    public Vector3[] SuitPlacement;
     public MeshRenderer MR;
     public Material M;
     public TextMeshPro RankText;
     public TextMeshPro NameText;
+    public MeshRenderer[] SuitsIcon;
 
     public bool selectable = true;
-    public bool isbacked = true;
+    public bool isbacked = false;
     public bool canmove = true;
     void Start()
     {
@@ -26,6 +26,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
         BelongR = transform.rotation.eulerAngles;
         MR = GetComponent<MeshRenderer>();
         ResetPos();
+        Hide();
     }
 
     public virtual void ResetPos()
@@ -46,7 +47,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
         {
             suitss += $"{s.Name}, ";
         }
-        Indicator.instance.Move(transform, card.cardname, suitss);
+        Indicator.instance.Move(transform, card.cardname, suitss, true);
     }
 
     public virtual void MouseExit()
@@ -71,13 +72,29 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     }
     public void Show()
     {
-        MR.materials[0] = CardManager.instance.Back;
+        MR.materials[0] = M;
         isbacked = false;
+        for (int i = 0; i < SuitsIcon.Length; i++)
+        {
+            if (card.suits[i] != null)
+            {
+                SuitsIcon[i].gameObject.SetActive(true);
+                SuitsIcon[i].materials[0] = card.suits[i].icon;
+            }
+            else
+            {
+                SuitsIcon[i].gameObject.SetActive(false);
+            }
+        }
     }
     public void Hide()
     {
-        GetComponent<MeshRenderer>().materials[0] = M;
+        MR.materials[0] = CardManager.instance.Back;
         isbacked = true;
+        for (int i = 0; i < SuitsIcon.Length; i++)
+        {
+            SuitsIcon[i].gameObject.SetActive(false);
+        }
     }
 
 }

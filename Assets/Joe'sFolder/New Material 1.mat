@@ -36,7 +36,7 @@ Material:
     - _scolling: 0.022
     - _thickness: 0.16
     m_Colors:
-    - _Color: {r: 1, g: 0.66165113, b: 0, a: 1}
+    - _Color: {r: 0.066037714, g: 0.06412782, b: 0.053889267, a: 1}
     - _dsst: {r: 3, g: 3, b: 0, a: 0}
     - _ec: {r: 0, g: 0, b: 0, a: 1}
     - _scoll: {r: 2, g: 2, b: 0, a: 0}

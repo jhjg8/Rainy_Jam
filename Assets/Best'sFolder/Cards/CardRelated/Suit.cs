@@ -1,17 +1,12 @@
 using UnityEngine;
 
-public class Suit : MonoBehaviour
+public class Suit : ScriptableObject
 {
     public string id = "";
     public string Name = "name";
-    public Sprite icon;
-    CardObj CO;
-    Card C;
-    protected virtual void Start()
-    {
-        CO = GetComponent<CardObj>();
-        C = CO.card;
-    }
+    public Material icon;
+    protected CardObj CO;
+    protected Card C;
     protected virtual void Update()
     {
 
@@ -22,6 +17,14 @@ public class Suit : MonoBehaviour
 
     }
     public virtual void Disable()
+    {
+
+    }
+    public virtual void EnableForEnemy()
+    {
+
+    }
+    public virtual void DisableForEnemy()
     {
 
     }

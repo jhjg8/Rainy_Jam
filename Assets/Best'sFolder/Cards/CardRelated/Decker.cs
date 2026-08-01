@@ -11,6 +11,7 @@ public class Decker : MonoBehaviour
         {
             card.Add(Co);
         }
+        OrganizeDeck();
     }
     public virtual void RemoveCardFromDeck(CardObj Co)
     {
@@ -18,6 +19,7 @@ public class Decker : MonoBehaviour
         {
             card.Remove(Co);
         }
+        OrganizeDeck();
     }
     public virtual void OrganizeDeck()
     {
@@ -26,17 +28,21 @@ public class Decker : MonoBehaviour
         {
             if (Co != null)
             {
-                Co.Belong = Deck.position + new Vector3(Deck.transform.position.x, Deck.transform.position.y, Deck.transform.position.z + (i * spacing));
+                Co.Belong = Deck.position + new Vector3(Deck.transform.position.x, Deck.transform.position.y + (i * 0.001f), Deck.transform.position.z + (i * spacing));
                 i++;
                 if (i == card.Count)
                 {
-                    Co.Show();
+                    Co.selectable = true;
                 }
                 else
                 {
-                    Co.Hide();
+                    Co.selectable = false;
                 }
             }
         }
+    }
+    public void Shuffle()
+    {
+        card.Shuffle();
     }
 }

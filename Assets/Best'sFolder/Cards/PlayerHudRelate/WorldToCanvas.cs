@@ -53,19 +53,6 @@ public class WorldToCasvas : MonoBehaviour
         // 2. Convert World Space to Screen Space
         Vector3 screenPos = mainCam.WorldToScreenPoint(targetWorldPos);
 
-        // 3. Check if the object is behind the camera
-        if (screenPos.z < 0)
-        {
-            // Object is behind us, hide the UI
-            if (canvasGroup != null) canvasGroup.alpha = 0f;
-            return; 
-        }
-        else
-        {
-            // Object is in front of us, show the UI
-            if (canvasGroup != null) canvasGroup.alpha = 1f;
-        }
-
         // 4. Smooth Movement using DOTween
         // We use ChangeEndValue so we aren't creating a brand new Tween every single frame (which causes lag)
         if (moveTween == null || !moveTween.IsActive())

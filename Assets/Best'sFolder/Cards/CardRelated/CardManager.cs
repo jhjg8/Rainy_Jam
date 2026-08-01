@@ -98,15 +98,15 @@ public class CardManager : MonoBehaviour
     {
 
     }
-    public GameObject createObj(int rank, Vector3 pos,List<System.Type> suits)
+    public GameObject createObj(int rank, Vector3 pos,List<Suit> suits)
     {
-        GameObject n = Instantiate(template, pos, Quaternion.identity);
+        GameObject n = Instantiate(template, new Vector3(0,0,0), Quaternion.identity);
         CardObj c = n.GetComponent<CardObj>();
         c.card.Rank = rank;
         c.Belong = pos;
-        foreach (System.Type suit in suits)
+        foreach (Suit suit in suits)
         {
-            n.AddComponent(suit);
+            c.card.suits.Add(suit);
         }
         c.ResetPos();
         c.card.Addsuits();
