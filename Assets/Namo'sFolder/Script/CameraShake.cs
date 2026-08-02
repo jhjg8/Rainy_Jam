@@ -3,22 +3,20 @@ using System.Collections;
 
 public class CameraShake : MonoBehaviour
 {
-    [Header("Position Shake (X, Y)")]
-    public float defaultPosMagnitude = 0.15f; // ความแรงสั่นตำแหน่ง
+    [Header("Position Shake (X, Z)")]
+    public float defaultPosMagnitude = 0.15f; // ความแรงสั่นตำแหน่งแกน X, Z
 
-    [Header("Rotation Shake (Z Angle)")]
-    public float defaultRotMagnitude = 2.0f;  // ความแรงสั่นมุมหมุน
+    [Header("Rotation Shake (Y Angle)")]
+    public float defaultRotMagnitude = 2.0f;  // ความแรงหมุนรอบแกน Y
 
     [Header("Duration")]
     public float defaultDuration = 0.2f;      // ระยะเวลาสั่น (วินาที)
 
-    // สั่งให้สั่นโดยใช้ค่า Default ใน Inspector
     public void ShakeDefault()
     {
         StartCoroutine(ShakeRoutine(defaultDuration, defaultPosMagnitude, defaultRotMagnitude));
     }
 
-    // สั่งให้สั่นโดยกำหนดค่าความแรงเองตามต้องการ
     public void Shake(float posMagnitude, float rotMagnitude, float duration = 0.2f)
     {
         StartCoroutine(ShakeRoutine(duration, posMagnitude, rotMagnitude));
@@ -32,20 +30,19 @@ public class CameraShake : MonoBehaviour
 
         while (elapsed < duration)
         {
-            // 1. สั่นตำแหน่ง (X, Y)
+            // 1. สั่นตำแหน่งขนานพื้น (แกน X และ Z)
             float x = Random.Range(-1f, 1f) * posMag;
-            float y = Random.Range(-1f, 1f) * posMag;
-            transform.localPosition = originalPos + new Vector3(x, y, 0);
+            float z = Random.Range(-1f, 1f) * posMag;
+            transform.localPosition = originalPos + new Vector3(x, 0, z);
 
-            // 2. สั่นมุมหมุน (Rotation Z)
-            float zRot = Random.Range(-1f, 1f) * rotMag;
-            transform.localRotation = originalRot * Quaternion.Euler(0, 0, zRot);
+            // 2. สั่นหมุนซ้าย-ขวา (แกน Y)
+            float yRot = Random.Range(-1f, 1f) * rotMag;
+            transform.localRotation = originalRot * Quaternion.Euler(0, yRot, 0);
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // คืนค่าตำแหน่งและมุมหมุนกลับจุดเดิมเสมอ
         transform.localPosition = originalPos;
         transform.localRotation = originalRot;
     }
