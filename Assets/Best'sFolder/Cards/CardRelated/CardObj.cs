@@ -110,5 +110,13 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
             SuitsIcon[i].gameObject.SetActive(false);
         }
     }
+    private void OnMouseDown()
+{
+    // เล่นเสียง Interact แบบสุ่ม Pitch เมื่อกดหรือถือไพ่
+    if (SoundManager.Instance != null)
+    {
+        SoundManager.Instance.PlayInteractCardSFX();
+    }
+}
 
 }
