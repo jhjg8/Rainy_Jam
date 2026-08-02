@@ -1,4 +1,5 @@
-public class Card : MonoBehaviour
+using UnityEngine;
+public class CardSS : MonoBehaviour
 {
     public void OnPlayCard()
     {
