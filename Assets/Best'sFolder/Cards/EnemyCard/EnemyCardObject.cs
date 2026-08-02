@@ -9,12 +9,13 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
     public EnemyCard card;
     public Vector3 Belong;
     public Vector3 BelongR;
+    public int CoinReward;
     public CardManager.position pos = CardManager.position.other;
     public CardManager.position Pos { get { return pos; } set { pos = value; } }
     [SerializeField] float speed = 0.2f;
 
     public MeshRenderer MR;
-    public Material M;
+    public Texture M;
     public TextMeshPro PowerText;
     public TextMeshPro HealthText;
     public TextMeshPro NameText;
@@ -40,7 +41,11 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
             }
         }
     }
-
+    void Update()
+    {
+        ResetPos();
+    }
+    
     public virtual void ResetPos()
     {
         PowerText.text = card.Power.ToString();
@@ -50,9 +55,8 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
         HealthText.text = card.Health.ToString();
 
         if (Belong == null || !canmove) return;
-        transform.DOKill();
-        transform.DOMove(Belong, speed).SetEase(Ease.OutSine).SetSpeedBased();
-        transform.DORotate(BelongR, speed * 5).SetEase(Ease.OutSine).SetSpeedBased();
+        transform.position = Vector3.Lerp(transform.position, Belong, speed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(BelongR), speed * 5);
     }
     public virtual void MouseEnter()
     {

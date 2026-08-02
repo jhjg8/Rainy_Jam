@@ -99,11 +99,14 @@ public class CardManager : MonoBehaviour
     }
     private void Start()
     {
-
+        foreach (Suit s in allsuits)
+        {
+            s.Enable();
+        }
     }
     public GameObject createObj(int rank, Vector3 pos,List<Suit> suits)
     {
-        GameObject n = Instantiate(template, new Vector3(0,180,0), Quaternion.identity);
+        GameObject n = Instantiate(template, pos, Quaternion.identity);
         CardObj c = n.GetComponent<CardObj>();
         c.card.Rank = rank;
         c.Belong = pos;

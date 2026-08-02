@@ -110,8 +110,8 @@ public class Field : MonoBehaviour
             // Target Position (Straight line, overlapping slightly on Z axis to prevent Z-fighting)
             Vector3 targetPosition = centerPos + new Vector3(startX + (i * currentSpacing), yOffset, i * 0.01f);
 
-            // Target Rotation (Upside down)
-            Vector3 targetRotation = new Vector3(0, 180f, 180f);
+            // Target Rotation (Flat, face-up — no rotation)
+            Vector3 targetRotation = Vector3.zero;
 
             // Set variables on CardObj
             card.Belong = targetPosition;

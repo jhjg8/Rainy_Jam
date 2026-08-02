@@ -15,5 +15,5 @@ MonoBehaviour:
   id: tan
   Name: Tank
   Description: description
-  DescriptionForEnemy: description
+  DescriptionForEnemy: Disable Tank suit
   icon: {fileID: 2800000, guid: 20e685c584388434dbed2a63495d59b6, type: 3}

@@ -1,4 +1,5 @@
 using UnityEngine;
+
 [CreateAssetMenu(fileName = "Diamond", menuName = "Card/Suits/Diamond")]
 public class Diamond : Suit
 {
@@ -6,40 +7,37 @@ public class Diamond : Suit
     {
         EventBus<CardAttackerEvent>.Register(Hire);
     }
+
     public override void Disable()
     {
         EventBus<CardAttackerEvent>.Unregister(Hire);
     }
+
     public override void EnableForEnemy()
     {
-        Disable();
+        // Leaving blank for now (see note below)
     }
+
     public override void DisableForEnemy()
     {
-        Enable();
+        // Leaving blank for now
     }
+
     public void Hire(CardAttackerEvent payload)
     {
+        // 1. Only run if the attacking card is a Diamond
         if (!payload.Card.suits.Contains(this)) return;
 
-        int num = payload.Card.Rank;
-        if (HandOrganizer.Instance.cardsInHand.Count + num > HandOrganizer.Instance.Maxhand)
-        {
-            num = HandOrganizer.Instance.Maxhand - HandOrganizer.Instance.cardsInHand.Count;
-        }
-        for (int i = 0; i < num; i++)
-        {
-            if (Tavern.instance.card.Count > 0)
-            {
-                CardObj cobj = Tavern.instance.card[Tavern.instance.card.Count - 1];
+        // 2. Calculate how many cards we can fit
+        int numToDraw = payload.Card.Rank;
+        int availableSpace = HandOrganizer.Instance.Maxhand - HandOrganizer.Instance.cardsInHand.Count;
 
-                if (HandOrganizer.Instance.cardsInHand.Count <= HandOrganizer.Instance.Maxhand)
-                {
-                    Tavern.instance.RemoveCardFromDeck(cobj);
-                }
-
-                HandOrganizer.Instance.AddCardToHand(cobj);
-            }
+        if (numToDraw > availableSpace)
+        {
+            numToDraw = availableSpace;
         }
+
+        // 3. Just use the fantastic async method you already wrote!
+        PlayManager.instance.Drawcard(numToDraw);
     }
 }

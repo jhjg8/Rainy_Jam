@@ -73,20 +73,30 @@ public class PlayManager : MonoBehaviour
             },
             (completedCards) =>
             {
-                if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(EncounterManager.instance.CurrentEnemy.card.Power))
+                // Safely check if CurrentEnemy and its card exist first
+                int enemyPower = (EncounterManager.instance.CurrentEnemy != null && EncounterManager.instance.CurrentEnemy.card != null)
+                    ? EncounterManager.instance.CurrentEnemy.card.Power
+                    : 0;
+
+                if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(enemyPower))
                 {
                     Debug.Log("Player lost the encounter!");
+                    Application.Quit();
+#if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+#endif
                 }
                 EncounterManager.instance.Defendpoint = 0;
                 MoveToGraveYard(completedCards);
             });
-        
+
     }
     public async void MoveToGraveYard(List<CardObj> cardo)
     {
         foreach (CardObj obj in cardo)
         {
             Graveyard.instance.AddCardToDeck(obj);
+
             await Task.Delay(200);
         }
     }
@@ -136,6 +146,12 @@ public class PlayManager : MonoBehaviour
             {
                 Field.Instance.AddCardToField(c);
                 EncounterManager.instance.DamagePoint = 0;
+
+                // FIX: Changed '=' to '==' so it checks instead of erasing the enemy
+                if (EncounterManager.instance.CurrentEnemy == null)
+                {
+                    MoveToGraveYard(completedCards);
+                }
             });
 
     }

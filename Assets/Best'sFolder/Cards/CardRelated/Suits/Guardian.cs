@@ -15,11 +15,12 @@ public class Guardian : Suit
     public override void EnableForEnemy()
     {
         Disable();
-        EncounterManager.instance.CalculatePlayerDamage += EnhanceGuard;
+        EncounterManager.instance.CalculatePlayerDamage += EnhanceGuardForEnemy;
     }
     public override void DisableForEnemy()
     {
         Enable();
+        EncounterManager.instance.CalculatePlayerDamage -= EnhanceGuardForEnemy;
     }
     public void Guard(CardDefenderEvent payload)
     {

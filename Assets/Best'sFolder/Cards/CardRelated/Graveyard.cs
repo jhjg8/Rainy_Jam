@@ -19,6 +19,9 @@ public class Graveyard : Decker
             Co.pos = CardManager.position.graveyard;
             card.Add(Co);
         }
+        // Force canmove so the card always animates to the graveyard position
+        Co.canmove = true;
+        OrganizeDeck();
         EventBus<CardMoveToGraveyard>.Raise(new CardMoveToGraveyard { Card = Co.card });
         Co.Hide();
     }

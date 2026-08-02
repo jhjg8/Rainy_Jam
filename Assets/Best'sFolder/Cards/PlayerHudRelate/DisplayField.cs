@@ -38,7 +38,11 @@ public class DisplayField : MonoBehaviour
             onComplete?.Invoke(cardsToDisplay);
             return;
         }
-        currentDisplayedCards = cardsToDisplay;
+
+        // FIX: Copy the cards into the tracker instead of overwriting the reference
+        currentDisplayedCards.Clear();
+        currentDisplayedCards.AddRange(cardsToDisplay);
+
         StartCoroutine(DisplayRoutine(cardsToDisplay, onCardProcess, onComplete));
     }
 

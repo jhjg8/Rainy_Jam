@@ -30,7 +30,16 @@ public class Necromancer : Suit
     }
     public void Revive(EnemyDiedEvent payload)
     {
-        if (!payload.Card.suits.Contains(this)) return;
+        bool hasNecro = false;
+        foreach (var c in Field.Instance.cardsOnField)
+        {
+            if (c.card.suits.Contains(this))
+            {
+                hasNecro = true;
+                break;
+            }
+        }
+        if (!hasNecro) return;
 
         if (HandOrganizer.Instance.cardsInHand.Count >= HandOrganizer.Instance.Maxhand) return;
 
