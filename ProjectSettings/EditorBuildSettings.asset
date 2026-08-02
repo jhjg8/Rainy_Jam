@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Namo'sFolder/Scene/Shoppee.unity
     guid: db228e71abb0d1e4aa1c6e9115d8d5cb
+  - enabled: 0
+    path: Assets/Fade'sFolder/Fade'sScene.unity
+    guid: b6c1ce993669eae43913b7681c3d5e07
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
