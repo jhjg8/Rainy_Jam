@@ -48,5 +48,6 @@ public class EnemyCard : MonoBehaviour
             PlayManager.instance.Isdefended = true;
             Destroy(gameObject);
         }
+        CardObj.ResetPos();
     }
 }

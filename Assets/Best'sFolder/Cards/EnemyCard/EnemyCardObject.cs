@@ -47,6 +47,8 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
         PowerText.text = card.Power.ToString();
         HealthText.text = card.Health.ToString();
         NameText.text = card.cardname;
+        PowerText.text = EncounterManager.instance.CalculateEnemyDmg(card.Power).ToString();
+        HealthText.text = card.Health.ToString();
 
         if (Belong == null || !canmove) return;
         transform.DOKill();

@@ -11,7 +11,7 @@ public class KickStart : MonoBehaviour
             for (int j = 0; j <= 5; j++)
             {
                 List<Suit> s = new List<Suit> { CardManager.instance.allsuits[i] };
-                GameObject card = CardManager.instance.createObj(j, new Vector3(0, 0, 0), s);
+                GameObject card = CardManager.instance.createObj(j + 5, new Vector3(0, 0, 0), s);
                 cards.Add(card.GetComponent<CardObj>());
             }
         }

@@ -118,6 +118,7 @@ public class EncounterManager : MonoBehaviour
         c.card.Health = (split * 10);
         c.card.Power = ((points - split) * 4);
 
+        card.SetActive(true);
         return card;
     }
     public void Endfight()

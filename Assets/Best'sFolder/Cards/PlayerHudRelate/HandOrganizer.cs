@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using TMPro;
 public class HandOrganizer : MonoBehaviour
 {
     public static HandOrganizer Instance { get; private set; }
@@ -9,7 +9,7 @@ public class HandOrganizer : MonoBehaviour
     [Header("Hand Settings")]
     public Transform handCenterPoint; // Pivot point where the hand expands from
     public float cardSpacing = 1.2f;   // Horizontal space between cards
-    public float selectionOffset = 0.5f; // How high a card pops up when selected
+    public float selectionOffset = 2f; // How high a card pops up when selected
     public float fanAngle = 3f;        // Rotation fan effect for Balatro look
     public float curveHeight = 0.1f;    // Arch height for Balatro curved layout
     public int Maxhand = 8;
@@ -20,6 +20,9 @@ public class HandOrganizer : MonoBehaviour
     [Header("Cards List")]
     public List<CardObj> cardsInHand = new List<CardObj>();
     public List<CardObj> selectedCards = new List<CardObj>();
+    public List<CardObj> almostselectedCards = new List<CardObj>();
+
+    [SerializeField] private TextMeshProUGUI handCountText;
 
     private void Awake()
     {
@@ -90,13 +93,37 @@ public class HandOrganizer : MonoBehaviour
         // Refresh positions so selected card pops up/down
         OrganizeHand();
     }
+    public void TogglelittleSelectCard(CardObj card)
+    {
+        if (almostselectedCards.Contains(card))
+        {
+            // Second click on selected card -> Deselect
+            almostselectedCards.Remove(card);
+        }
+        else
+        {
+            // First click on unselected card -> Select (if limit not reached)
+            if (almostselectedCards.Count < maxSelectableCards)
+            {
+                almostselectedCards.Add(card);
+            }
+            else
+            {
+                Debug.Log("Selection limit reached!");
+                return;
+            }
+        }
 
+        // Refresh positions so selected card pops up/down
+        OrganizeHand();
+    }
     /// <summary>
     /// Recalculates Belong and BelongR for all cards in hand and triggers ResetPos().
     /// </summary>
     public void OrganizeHand()
     {
         int count = cardsInHand.Count;
+        handCountText.text = $"{cardsInHand.Count} / {Maxhand}";
         if (count == 0) return;
 
         Vector3 centerPos = handCenterPoint != null ? handCenterPoint.position : transform.position;
@@ -114,13 +141,13 @@ public class HandOrganizer : MonoBehaviour
 
             // 3. Selection vertical offset
             float ySelectOffset = selectedCards.Contains(card) ? selectionOffset : 0f;
-
+            float yAlmostSelectOffset = almostselectedCards.Contains(card) ? 0.5f : 0f;
             // Target Position
-            Vector3 targetPosition = centerPos + new Vector3(xOffset, yCurve + ySelectOffset, -i * 0.01f);
+            Vector3 targetPosition = centerPos + new Vector3(xOffset, i * 0.01f, yCurve + ySelectOffset + yAlmostSelectOffset);
 
             // 4. Balatro Fan Rotation
             float zRotation = -normalizedIndex * fanAngle;
-            Vector3 targetRotation = new Vector3(0, i * 0.01f, zRotation);
+            Vector3 targetRotation = new Vector3(0, zRotation,  i * 0.01f);
 
             // Set variables on CardObj
             card.Belong = targetPosition;

@@ -48,12 +48,14 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
             suitss += $"{s.Name}, ";
         }
         Indicator.instance.Move(transform, card.cardname, suitss, true);
+        HandOrganizer.Instance.TogglelittleSelectCard(this);
     }
 
     public virtual void MouseExit()
     {
         if (isbacked) return;
         Indicator.instance.cancle();
+        HandOrganizer.Instance.TogglelittleSelectCard(this);
     }
 
     public virtual void MouseClick()

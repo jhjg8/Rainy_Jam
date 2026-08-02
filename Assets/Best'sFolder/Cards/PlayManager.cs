@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 public struct CardMoveToTavern
 {
     public Card Card;
@@ -41,6 +42,8 @@ public class PlayManager : MonoBehaviour
 {
     public static PlayManager instance;
     public bool Isdefended = true;
+    public TextMeshProUGUI DefendPointtext;
+    public TextMeshProUGUI EnemyDmgtext;
     private void Awake()
     {
         instance = this;
@@ -66,15 +69,17 @@ public class PlayManager : MonoBehaviour
                 DefencePower += card.card.CalculateDefendpoint(card.card.Rank);
                 EventBus<CardDefenderEvent>.Raise(new CardDefenderEvent { Card = card.card, Enemy = EncounterManager.instance.CurrentEnemy });
                 EncounterManager.instance.Defendpoint += card.card.CalculateDefendpoint(card.card.Rank);
+                DefendPointtext.text = EncounterManager.instance.Defendpoint.ToString();
             },
             (completedCards) =>
             {
+                if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(EncounterManager.instance.CurrentEnemy.card.Power))
+                {
+                    Debug.Log("Loose nigger");
+                }
                 MoveToGraveYard(completedCards);
             });
-        if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(EncounterManager.instance.CurrentEnemy.card.Power))
-        {
-            Debug.Log("Loose nigger");
-        }
+        
     }
     public async void MoveToGraveYard(List<CardObj> cardo)
     {

@@ -26,15 +26,15 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Float: 0.2
+    - _Float: 0.1
     - _dissolveamount: 3.3
     - _dsc: 5
     - _dstr: 5
-    - _eg: 41.59
-    - _g: 1.67
+    - _eg: 40.47
+    - _g: 0.18
     - _noisescale: 7.95
     - _scolling: 0.022
-    - _thickness: 0.16
+    - _thickness: 0.1
     m_Colors:
     - _Color: {r: 0.066037714, g: 0.06412782, b: 0.053889267, a: 1}
     - _dsst: {r: 3, g: 3, b: 0, a: 0}
