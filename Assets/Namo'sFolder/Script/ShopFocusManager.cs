@@ -1,35 +1,25 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class ShopFocusManager : MonoBehaviour
 {
     public static ShopFocusManager Instance;
 
-    [Header("Cards Setup")]
-    public Card3DInteract[] allCards; // ลาก Card_1, 2, 3 มาใส่
-
     [Header("Camera Control")]
-    public Transform defaultCamPos;  // ลาก DefaultCamPos มาใส่
     public float moveSpeed = 5f;
-    public float focusOffsetZ = -2f; // ระยะถอยห่างหน้าการ์ดตอนซูม
+    public float focusOffsetZ = -2f;
 
     [Header("UI Focus Elements")]
     public GameObject focusUIPanel;
     public TextMeshProUGUI cardInfoText;
     public TextMeshProUGUI cardPriceText;
-    public Button leftArrowButton;
-    public Button rightArrowButton;
 
-    private int currentIndex = -1;
     private Vector3 targetCamPos;
 
-    private void Awake() => Instance = this;
-
-    private void Start()
+    private void Awake()
     {
-        if (defaultCamPos != null) targetCamPos = defaultCamPos.position;
-        if (focusUIPanel != null) focusUIPanel.SetActive(false);
+        Instance = this;
+        targetCamPos = transform.position;
     }
 
     private void Update()
@@ -38,72 +28,40 @@ public class ShopFocusManager : MonoBehaviour
         transform.position = Vector3.Lerp(transform.position, targetCamPos, Time.deltaTime * moveSpeed);
     }
 
+    // เรียกฟังก์ชันนี้เมื่อคลิกการ์ด (ส่ง Index 0 - 7 เข้ามา)
     public void FocusOnCard(int index)
     {
-        currentIndex = index;
+        if (ShopManager.Instance == null || index < 0 || index >= ShopManager.Instance.shopCards.Count) return;
+        if (ShopManager.Instance.shopCards[index] == null) return;
 
-        // 1. เปิดการ์ดเฉพาะใบที่โฟกัส ซ่อนใบอื่น
-        for (int i = 0; i < allCards.Length; i++)
+        // 1. ซ่อนการ์ดใบอื่น ให้เห็นเฉพาะใบที่เลือก
+        for (int i = 0; i < ShopManager.Instance.shopCards.Count; i++)
         {
-            if (allCards[i] != null)
-                allCards[i].gameObject.SetActive(i == currentIndex);
+            if (ShopManager.Instance.shopCards[i] != null)
+            {
+                ShopManager.Instance.shopCards[i].SetActive(i == index);
+            }
         }
 
-        // 2. ตั้งจุดกล้องสไลด์
-        Vector3 cardPos = allCards[currentIndex].transform.position;
+        // 2. ตั้งตำแหน่งกล้องให้เลื่อนไปหาการ์ดใบนั้น
+        Vector3 cardPos = ShopManager.Instance.shopCards[index].transform.position;
         targetCamPos = new Vector3(cardPos.x, cardPos.y, cardPos.z + focusOffsetZ);
 
-        // 3. อัปเดต UI
-        UpdateUI();
-    }
-
-    public void NextCard()
-    {
-        if (currentIndex < allCards.Length - 1) FocusOnCard(currentIndex + 1);
-    }
-
-    public void PreviousCard()
-    {
-        if (currentIndex > 0) FocusOnCard(currentIndex - 1);
-    }
-
-    public void ExitFocus()
-    {
-        currentIndex = -1;
-
-        // แสดงการ์ดทุกใบกลับมา
-        foreach (var card in allCards)
-        {
-            if (card != null) card.gameObject.SetActive(true);
-        }
-
-        if (defaultCamPos != null) targetCamPos = defaultCamPos.position;
-        if (focusUIPanel != null) focusUIPanel.SetActive(false);
-    }
-
-    public void BuyCurrentCard()
-    {
-        if (currentIndex < 0 || allCards[currentIndex] == null) return;
-
-        Card3DInteract currentCard = allCards[currentIndex];
-        if (ShopDemoManager.Instance.SpendCoinsWithFX(currentCard.price))
-        {
-            Destroy(currentCard.gameObject);
-            allCards[currentIndex] = null;
-            ExitFocus();
-        }
-    }
-
-    private void UpdateUI()
-    {
+        // 3. แสดง UI และดึงราคาจาก ShopManager
         if (focusUIPanel != null) focusUIPanel.SetActive(true);
 
-        Card3DInteract card = allCards[currentIndex];
-        if (cardInfoText != null) cardInfoText.text = card.cardDescription;
-        if (cardPriceText != null) cardPriceText.text = $"{card.price} Coins";
+        GameObject currentCardGO = ShopManager.Instance.shopCards[index];
+        CardObj cardObj = currentCardGO.GetComponent<CardObj>();
 
-        // เปิด/ปิด ลูกศรตามขอบ
-        if (leftArrowButton != null) leftArrowButton.gameObject.SetActive(currentIndex > 0);
-        if (rightArrowButton != null) rightArrowButton.gameObject.SetActive(currentIndex < allCards.Length - 1);
+        if (cardInfoText != null && cardObj != null && cardObj.card != null)
+        {
+            cardInfoText.text = $"{cardObj.card.cardname}\nRank: {cardObj.card.Rank}";
+        }
+
+        if (cardPriceText != null)
+        {
+            int price = ShopManager.Instance.cardPrices[index];
+            cardPriceText.text = $"{price} Coins";
+        }
     }
 }

@@ -6,8 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Namo'sFolder/Scene/Namo.unity
+    guid: 81a44c294655b584a8ff53151203ae48
+  - enabled: 1
+    path: Assets/Namo'sFolder/Scene/Shoppee.unity
+    guid: db228e71abb0d1e4aa1c6e9115d8d5cb
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
