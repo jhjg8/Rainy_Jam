@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -86,7 +86,7 @@ public class CardManager : MonoBehaviour
                               "Zane",
                               "Zoran"};
     [SerializeField] private GameObject template;
-    public Material Back;
+    public Texture Back;
     public List<Texture> CardSpades;
     public List<Texture> CardDiamond;
     public List<Texture> CardHeart;
@@ -112,52 +112,32 @@ public class CardManager : MonoBehaviour
             c.card.suits.Add(suit);
         }
         c.ResetPos();
-        c.card.Addsuits();
         n.name = "Card";
         c.card.cardname = names[Random.Range(0, names.Length)];
-        int suitsCount = 1;
-        bool isbreake = false;
-        while (!isbreake)
-        {
-            int chance = UnityEngine.Random.Range(0, 100);
-            if (chance < Mathf.Clamp((25 + EncounterManager.instance.DificaultyLevel), 25, 50))
-            {
-                suitsCount++;
-            }
-            else if (suitsCount >= 6)
-            {
-                isbreake = true;
-            }
-            else
-            {
-                isbreake = true;
-            }
-        }
-        for (int i = 0; i < suitsCount; i++)
-        {
-            if (i == 0)
-                c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(0, 4)]);
-
-            else
-                c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)]);
-        }
+        
         var firstSuit = c.card.suits[0];
+        Texture randomtexture = null;
         if (firstSuit == CardManager.instance.allsuits[0])
         {
+            randomtexture = CardClub[UnityEngine.Random.Range(0, CardClub.Count)];
             n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardClub[UnityEngine.Random.Range(0, CardClub.Count)]);
         }
         else if (firstSuit == CardManager.instance.allsuits[1])
         {
+            randomtexture = CardDiamond[UnityEngine.Random.Range(0, CardDiamond.Count)];
             n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardDiamond[UnityEngine.Random.Range(0, CardDiamond.Count)]);
         }
         else if (firstSuit == CardManager.instance.allsuits[2])
         {
+            randomtexture = CardHeart[UnityEngine.Random.Range(0, CardHeart.Count)];
             n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardHeart[UnityEngine.Random.Range(0, CardHeart.Count)]);
         }
         else if (firstSuit == CardManager.instance.allsuits[3])
         {
+            randomtexture = CardSpades[UnityEngine.Random.Range(0, CardSpades.Count)];
             n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardSpades[UnityEngine.Random.Range(0, CardSpades.Count)]);
         }
+        c.M = randomtexture;
         n.SetActive(true);
         return n;
     }

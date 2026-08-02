@@ -24,13 +24,12 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
     public bool canmove = true;
     void Start()
     {
-        Belong = transform.position;
         BelongR = transform.rotation.eulerAngles;
         MR = GetComponent<MeshRenderer>();
         ResetPos();
-        for (int i = 0; i < SuitsIcon.Length; i++)
+        for (int i = 0; i < 6; i++)
         {
-            if (card.suits[i] != null)
+            if (i < card.suits.Count)
             {
                 SuitsIcon[i].gameObject.SetActive(true);
                 SuitsIcon[i].materials[0].SetTexture("_mt", card.suits[i].icon);
@@ -53,7 +52,7 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
         if (Belong == null || !canmove) return;
         transform.DOKill();
         transform.DOMove(Belong, speed).SetEase(Ease.OutSine).SetSpeedBased();
-        transform.DORotate(BelongR, speed).SetEase(Ease.OutSine).SetSpeedBased();
+        transform.DORotate(BelongR, speed * 5).SetEase(Ease.OutSine).SetSpeedBased();
     }
     public virtual void MouseEnter()
     {

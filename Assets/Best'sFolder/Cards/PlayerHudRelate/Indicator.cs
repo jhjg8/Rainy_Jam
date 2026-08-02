@@ -28,6 +28,8 @@ public class Indicator : MonoBehaviour
         if (wtc.worldTarget == target) return;
         Cg.DOKill();
         targetImage.DOKill();
+        Cardside.text = name;
+        Suits.text = suits;
         Cg.DOFade(1f, 0.25f).SetEase(Ease.OutSine);
         if (blue)
         {

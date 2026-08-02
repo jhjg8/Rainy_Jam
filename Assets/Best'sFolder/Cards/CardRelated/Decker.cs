@@ -28,7 +28,7 @@ public class Decker : MonoBehaviour
         {
             if (Co != null)
             {
-                Co.Belong = Deck.position + new Vector3(Deck.transform.position.x, Deck.transform.position.y + (i * 0.01f), Deck.transform.position.z + (i * spacing));
+                Co.Belong = Deck.position + new Vector3(0, i * 0.01f, i * spacing);
                 i++;
                 if (i == card.Count)
                 {

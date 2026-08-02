@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening;
 public struct CardAttackerEvent
 {
     public Card Card;
@@ -13,13 +14,19 @@ public struct CardDefenderEvent
     public Card Card;
     public EnemyCardObject Enemy;
 }
+
+public struct EnemyDiedEvent
+{
+    public Card Card;
+    public EnemyCardObject Enemy;
+}
 public class EncounterManager : MonoBehaviour
 {
     public bool IsFighting;
     public EnemyCardObject EnemyCard;
 
     public HandOrganizer Ho;
-    [SerializeField] private Transform enemypos;
+    [SerializeField] public Transform enemypos;
 
     public EnemyCardObject CurrentEnemy;
     public List<Texture> DiamondCard;
@@ -34,6 +41,7 @@ public class EncounterManager : MonoBehaviour
     public Func<int, int> CalculatePlayerDamage;
 
     public int Defendpoint;
+    public int DamagePoint;
     public TextMeshProUGUI text;
 
     private void Awake()
@@ -47,6 +55,37 @@ public class EncounterManager : MonoBehaviour
     {
         Ho = HandOrganizer.Instance;
     }
+    float timer = 0;
+    public void Update()
+    {
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            if (timer <= 0)
+            {
+                text.alpha = timer / 1.5f;
+            }
+        }
+        else
+        {
+            text.gameObject.SetActive(false);
+        }
+    }
+    public void UpdateUI(bool isblue)
+    {
+        timer = 1.5f;
+        text.gameObject.SetActive(true);
+        if (isblue)
+        {
+            text.DOColor( Color.blue, 0.25f).SetEase(Ease.OutQuad);
+            text.text = $"DefendPoint: {Defendpoint}";
+        }
+        else
+        {
+            text.DOColor(Color.red, 0.25f).SetEase(Ease.OutQuad);
+            text.text = $"EnemyDmg: {DamagePoint}";
+        }
+    }
     public void StartFight(EnemyCardObject Eo)
     {
         CurrentEnemy = Eo;
@@ -59,9 +98,10 @@ public class EncounterManager : MonoBehaviour
     }
     public GameObject CreateEnemyCard(Vector3 pos)
     {
-        var card = Instantiate(EnemyCard.gameObject,pos,Quaternion.identity);
+        var card = Instantiate(EnemyCard.gameObject,pos, Quaternion.Euler(0, 0, 180f));
         EnemyCardObject c = card.GetComponent<EnemyCardObject>();
         c.Belong = pos;
+        card.name = "EnemyCard";
         bool isbreake = false;
         int suitsCount = 1;
         while (!isbreake)
@@ -70,10 +110,7 @@ public class EncounterManager : MonoBehaviour
             if (chance < Mathf.Clamp((25 + DificaultyLevel), 25, 50))
             {
                 suitsCount++;
-            }
-            else if (suitsCount >= 6)
-            {
-                isbreake = true;
+                if (suitsCount >= 6) isbreake = true;
             }
             else
             {
@@ -89,14 +126,14 @@ public class EncounterManager : MonoBehaviour
             {
                 while (true) {
                     Suit s = CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)];
-                    if (s == null) break;
+                    if (s == null) continue;
                     if (!c.card.suits.Contains(s)) break;
                 }
                 c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)]);
             }
         }
         Suit firstSuit = c.card.suits[0];
-
+        c.card.cardname = CardManager.instance.names[UnityEngine.Random.Range(0, CardManager.instance.names.Length)];
         if (firstSuit == CardManager.instance.allsuits[0])
         {
             card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", ClubCard[UnityEngine.Random.Range(0, ClubCard.Count)]);
@@ -114,9 +151,9 @@ public class EncounterManager : MonoBehaviour
             card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", SpadesCard[UnityEngine.Random.Range(0, SpadesCard.Count)]);
         }
         int points = UnityEngine.Random.Range(DificaultyLevel - 5, DificaultyLevel + 5) - suitsCount + 5;
-        int split = UnityEngine.Random.Range(DificaultyLevel / 2, points);
-        c.card.Health = (split * 10);
-        c.card.Power = ((points - split) * 4);
+        int split = UnityEngine.Random.Range((DificaultyLevel / 4), points);
+        c.card.Health = (split * 9);
+        c.card.Power = ((int)MathF.Max((float)(points - split),1f) * 4);
 
         card.SetActive(true);
         return card;

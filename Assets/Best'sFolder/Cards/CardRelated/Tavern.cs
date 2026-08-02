@@ -20,6 +20,7 @@ public class Tavern : Decker
             card.Add(Co);
         }
         EventBus<CardMoveToTavern>.Raise(new CardMoveToTavern { Card = Co.card });
+        Co.Hide();
     }
     public override void RemoveCardFromDeck(CardObj Co)
     {

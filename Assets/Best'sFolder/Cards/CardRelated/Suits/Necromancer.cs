@@ -1,16 +1,45 @@
 using UnityEngine;
-
-public class Necromancer : MonoBehaviour
+using System.Collections.Generic;
+[CreateAssetMenu(fileName = "Necromancer", menuName = "Card/Suits/Necromancer")]
+public class Necromancer : Suit
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    int cardrank;
+    List<Card> Blacklist = new List<Card>();
+    public override void Enable()
     {
-        
+        EventBus<EnemyDiedEvent>.Register(Revive);
     }
-
-    // Update is called once per frame
-    void Update()
+    public override void Disable()
     {
-        
+        EventBus<EnemyDiedEvent>.Unregister(Revive);
+    }
+    public override void EnableForEnemy()
+    {
+        Disable();
+        EventBus<CardAttackerEvent>.Register(Unuse);
+    }
+    public override void DisableForEnemy()
+    {
+        Enable();
+        EventBus<CardAttackerEvent>.Unregister(Unuse);
+        foreach (Card card in Blacklist)
+        {
+            card.UseAble = true;
+        }
+        Blacklist.Clear();
+    }
+    public void Revive(EnemyDiedEvent payload)
+    {
+        if (!payload.Card.suits.Contains(this)) return;
+
+        if (HandOrganizer.Instance.cardsInHand.Count >= HandOrganizer.Instance.Maxhand) return;
+
+        Graveyard.instance.RemoveCardFromDeck(payload.Enemy.card.Reward);
+        HandOrganizer.Instance.AddCardToHand(payload.Enemy.card.Reward);
+    }
+    private void Unuse(CardAttackerEvent payload)
+    {
+        payload.Card.UseAble = false;
+        Blacklist.Add(payload.Card);
     }
 }

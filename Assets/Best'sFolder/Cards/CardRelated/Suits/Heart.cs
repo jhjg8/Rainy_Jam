@@ -10,6 +10,14 @@ public class Heart : Suit
     {
         EventBus<CardAttackerEvent>.Unregister(Heal);
     }
+    public override void EnableForEnemy()
+    {
+        Disable();
+    }
+    public override void DisableForEnemy()
+    {
+        Enable();
+    }
     public void Heal(CardAttackerEvent payload)
     {
         if (!payload.Card.suits.Contains(this)) return;

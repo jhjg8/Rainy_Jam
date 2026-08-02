@@ -42,8 +42,7 @@ public class PlayManager : MonoBehaviour
 {
     public static PlayManager instance;
     public bool Isdefended = true;
-    public TextMeshProUGUI DefendPointtext;
-    public TextMeshProUGUI EnemyDmgtext;
+    [SerializeField] private CameraShake cs;
     private void Awake()
     {
         instance = this;
@@ -55,11 +54,11 @@ public class PlayManager : MonoBehaviour
         List<CardObj> Defender = new List<CardObj>();
         if (HandOrganizer.Instance.selectedCards.Count != 0)
         {
-            Defender = HandOrganizer.Instance.selectedCards;
+            Defender = new List<CardObj>(HandOrganizer.Instance.selectedCards);
         }
         foreach (CardObj obj in Defender)
         {
-            HandOrganizer.Instance.selectedCards.Remove(obj);
+            HandOrganizer.Instance.RemoveCardFromHand(obj);
         }
         int DefencePower = 0;
             DisplayField.Instance.DisplayAndProcess(
@@ -69,14 +68,16 @@ public class PlayManager : MonoBehaviour
                 DefencePower += card.card.CalculateDefendpoint(card.card.Rank);
                 EventBus<CardDefenderEvent>.Raise(new CardDefenderEvent { Card = card.card, Enemy = EncounterManager.instance.CurrentEnemy });
                 EncounterManager.instance.Defendpoint += card.card.CalculateDefendpoint(card.card.Rank);
-                DefendPointtext.text = EncounterManager.instance.Defendpoint.ToString();
+                EncounterManager.instance.UpdateUI(true);
+                cs.Shake(0.1f,1f,0.1f);
             },
             (completedCards) =>
             {
                 if (DefencePower < EncounterManager.instance.CalculateEnemyDmg(EncounterManager.instance.CurrentEnemy.card.Power))
                 {
-                    Debug.Log("Loose nigger");
+                    Debug.Log("Player lost the encounter!");
                 }
+                EncounterManager.instance.Defendpoint = 0;
                 MoveToGraveYard(completedCards);
             });
         
@@ -91,12 +92,12 @@ public class PlayManager : MonoBehaviour
     }
     public async void Drawcard(int num)
     {
-        if (num <= Tavern.instance.card.Count) num = Tavern.instance.card.Count;
+        if (num > Tavern.instance.card.Count) num = Tavern.instance.card.Count;
         for (int i = 0; i < num; i++)
         {
-            if (HandOrganizer.Instance.cardsInHand.Count <= HandOrganizer.Instance.Maxhand)
+            if (HandOrganizer.Instance.cardsInHand.Count <= HandOrganizer.Instance.Maxhand )
             {
-                CardObj card = Tavern.instance.card[Tavern.instance.card.Count];
+                CardObj card = Tavern.instance.card[Tavern.instance.card.Count-1];
                 Tavern.instance.RemoveCardFromDeck(card);
                 HandOrganizer.Instance.AddCardToHand(card);
                 await Task.Delay(200);
@@ -109,10 +110,10 @@ public class PlayManager : MonoBehaviour
     }
     public async void Healcard(int num)
     {
-        if (num <= Graveyard.instance.card.Count) num = Graveyard.instance.card.Count;
+        if (num > Graveyard.instance.card.Count) num = Graveyard.instance.card.Count;
         for (int i = 0; i < num; i++)
         {
-                CardObj card = Graveyard.instance.card[Graveyard.instance.card.Count];
+                CardObj card = Graveyard.instance.card[Graveyard.instance.card.Count - 1];
                 Graveyard.instance.RemoveCardFromDeck(card); 
                 Tavern.instance.AddCardToDeck(card);
                 await Task.Delay(200);
@@ -126,12 +127,15 @@ public class PlayManager : MonoBehaviour
             (card) =>
         {
 
-            EncounterManager.instance.CalculatePlayerDamage(card.card.Rank);
-
+            int dmg = EncounterManager.instance.CalculatePlayerdmg(card.card.Rank);
+            EncounterManager.instance.DamagePoint += dmg;
+            EncounterManager.instance.UpdateUI(false);
+            cs.ShakeDefault();
         },
             (completedCards) =>
             {
                 Field.Instance.AddCardToField(c);
+                EncounterManager.instance.DamagePoint = 0;
             });
 
     }
@@ -144,8 +148,8 @@ public class PlayManager : MonoBehaviour
         Isdefended = false;
         CardObj card = HandOrganizer.Instance.selectedCards[0];
         Playcard(card);
+        EventBus<CardAttackerEvent>.Raise(new CardAttackerEvent { Card = card.card, Enemy = EncounterManager.instance.CurrentEnemy });
         EncounterManager.instance.CurrentEnemy.card.TakeDamage(
-            EncounterManager.instance.CalculatePlayerDamage(card.card.Rank));
-        EventBus<CardAttackerEvent>.Raise(new CardAttackerEvent { Card = card.card , Enemy = EncounterManager.instance.CurrentEnemy });
+            EncounterManager.instance.CalculatePlayerdmg(card.card.Rank));
     }
 }

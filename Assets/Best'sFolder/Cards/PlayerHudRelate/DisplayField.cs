@@ -16,6 +16,7 @@ public class DisplayField : MonoBehaviour
     public float defaultInitialWait = 1f; // How long to wait before starting the loop
     public float defaultLoopSpeed = 0.3f; // Delay between processing each card
 
+    public List<CardObj> currentDisplayedCards = new List<CardObj>();
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,7 +38,7 @@ public class DisplayField : MonoBehaviour
             onComplete?.Invoke(cardsToDisplay);
             return;
         }
-
+        currentDisplayedCards = cardsToDisplay;
         StartCoroutine(DisplayRoutine(cardsToDisplay, onCardProcess, onComplete));
     }
 
@@ -89,6 +90,7 @@ public class DisplayField : MonoBehaviour
         }
 
         // 5. Finished looping! Call the OnComplete function
+        currentDisplayedCards.Clear();
         onComplete?.Invoke(cards);
     }
 }

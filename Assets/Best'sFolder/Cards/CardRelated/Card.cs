@@ -11,10 +11,8 @@ public class Card : MonoBehaviour
     public List<Suit> suits = new List<Suit>();
     public Func<int, int> CalculateDef;
 
-    public void Addsuits()
-    {
-        suits = GetComponents<Suit>().ToList();
-    }
+    public bool UseAble = true;
+
 
     public int CalculateDefendpoint(int point)
     {

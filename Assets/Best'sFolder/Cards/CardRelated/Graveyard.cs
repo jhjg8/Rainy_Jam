@@ -20,6 +20,7 @@ public class Graveyard : Decker
             card.Add(Co);
         }
         EventBus<CardMoveToGraveyard>.Raise(new CardMoveToGraveyard { Card = Co.card });
+        Co.Hide();
     }
     public override void RemoveCardFromDeck(CardObj Co)
     {

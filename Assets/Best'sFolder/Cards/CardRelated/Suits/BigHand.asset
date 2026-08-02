@@ -15,4 +15,5 @@ MonoBehaviour:
   id: Big
   Name: BigHand
   Description: if in Tavern. Hand + 1
-  icon: {fileID: 2800000, guid: e332db607e046104da601369537ce4e7, type: 3}
+  DescriptionForEnemy: description
+  icon: {fileID: 2800000, guid: ab6ffe7515d90754c83454f7ce8d2e87, type: 3}

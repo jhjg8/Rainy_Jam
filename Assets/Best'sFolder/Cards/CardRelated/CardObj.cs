@@ -12,7 +12,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     [SerializeField] float speed = 0.2f;
 
     public MeshRenderer MR;
-    public Material M;
+    public Texture M;
     public TextMeshPro RankText;
     public TextMeshPro NameText;
     public MeshRenderer[] SuitsIcon;
@@ -24,9 +24,8 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     {
         Belong = transform.position;
         BelongR = transform.rotation.eulerAngles;
-        MR = GetComponent<MeshRenderer>();
+        if (MR == null) MR = GetComponent<MeshRenderer>();
         ResetPos();
-        Hide();
     }
 
     public virtual void ResetPos()
@@ -37,18 +36,26 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
         if (Belong == null || !canmove) return;
         transform.DOKill();
         transform.DOMove(Belong, speed).SetEase(Ease.OutSine).SetSpeedBased();
-        transform.DORotate(BelongR, speed).SetEase(Ease.OutSine).SetSpeedBased();
+        transform.DORotate(BelongR, speed * 5).SetEase(Ease.OutSine).SetSpeedBased();
     }
     public virtual void MouseEnter()
     {
         if (isbacked) return;
-        string suitss = "Suits:\n";
-        foreach (Suit s in card.suits)
+        if (card.UseAble == false)
         {
-            suitss += $"{s.Name}, ";
+            Indicator.instance.Move(transform, card.cardname, "This card is not usable", false);
+            return;
         }
-        Indicator.instance.Move(transform, card.cardname, suitss, true);
-        HandOrganizer.Instance.TogglelittleSelectCard(this);
+        else
+        {
+            string suitss = "Suits:\n";
+            foreach (Suit s in card.suits)
+            {
+                suitss += $"{s.Name}, ";
+            }
+            Indicator.instance.Move(transform, card.cardname, suitss, true);
+            HandOrganizer.Instance.TogglelittleSelectCard(this);
+        }
     }
 
     public virtual void MouseExit()
@@ -79,11 +86,11 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     }
     public void Show()
     {
-        MR.materials[0] = M;
+        MR.materials[0].SetTexture("_mt", M);
         isbacked = false;
-        for (int i = 0; i < SuitsIcon.Length; i++)
+        for (int i = 0; i < 6; i++)
         {
-            if (card.suits[i] != null)
+            if (i < card.suits.Count)
             {
                 SuitsIcon[i].gameObject.SetActive(true);
                 SuitsIcon[i].materials[0].SetTexture("_mt", card.suits[i].icon);
@@ -96,7 +103,7 @@ public class CardObj : MonoBehaviour , IMouseInteractAble
     }
     public void Hide()
     {
-        MR.materials[0] = CardManager.instance.Back;
+        MR.materials[0].SetTexture("_mt", CardManager.instance.Back);
         isbacked = true;
         for (int i = 0; i < SuitsIcon.Length; i++)
         {

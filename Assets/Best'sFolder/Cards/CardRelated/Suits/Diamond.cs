@@ -21,7 +21,13 @@ public class Diamond : Suit
     public void Hire(CardAttackerEvent payload)
     {
         if (!payload.Card.suits.Contains(this)) return;
-        for (int i = 0; i < payload.Card.Rank; i++)
+
+        int num = payload.Card.Rank;
+        if (HandOrganizer.Instance.cardsInHand.Count + num > HandOrganizer.Instance.Maxhand)
+        {
+            num = HandOrganizer.Instance.Maxhand - HandOrganizer.Instance.cardsInHand.Count;
+        }
+        for (int i = 0; i < num; i++)
         {
             if (Tavern.instance.card.Count > 0)
             {

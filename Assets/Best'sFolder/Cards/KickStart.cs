@@ -21,7 +21,7 @@ public class KickStart : MonoBehaviour
             Tavern.instance.AddCardToDeck(card);
         }
         PlayManager.instance.Drawcard(HandOrganizer.Instance.Maxhand);
-        GameObject go = EncounterManager.instance.CreateEnemyCard(new Vector3(0,0,0));
+        GameObject go = EncounterManager.instance.CreateEnemyCard(EncounterManager.instance.enemypos.position);
         EncounterManager.instance.StartFight(go.GetComponent<EnemyCardObject>());   
     }
 }

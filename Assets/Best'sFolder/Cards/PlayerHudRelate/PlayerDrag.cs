@@ -10,8 +10,6 @@ public class PlayerDrag : MonoBehaviour
     public float smoothMoveTime = 0.15f;
     public Ease moveEase = Ease.OutQuad;
 
-    [Header("Rotate Settings")]
-    public float smoothRotateTime = 0.25f;
 
     private Camera mainCamera;
 
@@ -49,7 +47,7 @@ public class PlayerDrag : MonoBehaviour
         if (isDragging || targetTransform == null) return;
 
         currentTarget = targetTransform;
-        lockedY = currentTarget.position.y; // Lock height to original Y level
+        lockedY = 5; // Lock height to original Y level
         isDragging = true;
     }
 
@@ -103,26 +101,7 @@ public class PlayerDrag : MonoBehaviour
                 moveTween.ChangeEndValue(targetPosition, true).Restart();
             }
 
-            // 3. Smooth Y-axis Rotation towards direction of motion
-            Vector3 direction = targetPosition - currentTarget.position;
-            direction.y = 0; // Lock rotation to Y axis only
-
-            if (direction.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(-direction);
-                Vector3 targetEuler = targetRotation.eulerAngles;
-
-                if (rotateTween == null || !rotateTween.IsActive())
-                {
-                    rotateTween = currentTarget.DORotate(targetEuler, smoothRotateTime, RotateMode.Fast)
-                        .SetEase(Ease.OutQuad)
-                        .SetAutoKill(false);
-                }
-                else
-                {
-                    rotateTween.ChangeEndValue(targetEuler, true).Restart();
-                }
-            }
+           
         }
     }
 

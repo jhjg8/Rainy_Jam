@@ -39,12 +39,13 @@ public class HandOrganizer : MonoBehaviour
     /// </summary>
     public void AddCardToHand(CardObj card)
     {
-        if (!cardsInHand.Contains(card) && cardsInHand.Count <= Maxhand)
+        if (!cardsInHand.Contains(card) && cardsInHand.Count < Maxhand)
         {
             cardsInHand.Add(card);
             card.Pos = CardManager.position.hand;
             OrganizeHand();
         }
+        card.Show();
         EventBus<CardMoveToHand>.Raise(new CardMoveToHand { Card = card.card });
     }
 
@@ -71,6 +72,7 @@ public class HandOrganizer : MonoBehaviour
     /// </summary>
     public void ToggleSelectCard(CardObj card)
     {
+        if (card.card.UseAble == false) return;
         if (selectedCards.Contains(card))
         {
             // Second click on selected card -> Deselect
@@ -147,7 +149,7 @@ public class HandOrganizer : MonoBehaviour
 
             // 4. Balatro Fan Rotation
             float zRotation = -normalizedIndex * fanAngle;
-            Vector3 targetRotation = new Vector3(0, zRotation,  i * 0.01f);
+            Vector3 targetRotation = new Vector3(0, -zRotation + 180,  i * 0.01f);
 
             // Set variables on CardObj
             card.Belong = targetPosition;
