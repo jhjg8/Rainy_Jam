@@ -2,6 +2,8 @@ using UnityEngine;
 using DG.Tweening;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
 public class CardObj : MonoBehaviour, IMouseInteractAble
 {
     public Card card;
@@ -20,6 +22,8 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
     public bool selectable = true;
     public bool isbacked = false;
     public bool canmove = true;
+    public bool suitChoosen = false;
+    public bool thisChoosen = false;
     void Start()
     {
         Belong = transform.position;
@@ -44,12 +48,19 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
     public virtual void MouseEnter()
     {
         if (isbacked) return;
-        // Cards in graveyard or tavern are not interactable by the player directly
-        if (pos == CardManager.position.graveyard || pos == CardManager.position.tavern) return;
+        if (suitChoosen) return;
+
+        StartCoroutine(ME());
+    }
+    IEnumerator ME()
+    {
+        yield return new WaitForEndOfFrame();
+        if (suitChoosen) yield break;
+        if (pos == CardManager.position.graveyard || pos == CardManager.position.tavern) yield break;
         if (card.UseAble == false)
         {
-            Indicator.instance.Move(transform, card.cardname, "This card is not usable", false);
-            return;
+            Indicator.instance.Move(transform, card.cardname, "This card is not usable", Color.blue);
+            yield break;
         }
         else
         {
@@ -58,19 +69,24 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
             {
                 suitss += $"{s.Name}, ";
             }
-            Indicator.instance.Move(transform, card.cardname, suitss, true);
-            HandOrganizer.Instance.TogglelittleSelectCard(this);
+            Indicator.instance.Move(transform, card.cardname, suitss, Color.blue);
+            HandOrganizer.Instance.TogglelittleSelectCard(this, true);
         }
     }
-
     public virtual void MouseExit()
     {
+        if (suitChoosen) return;
         if (isbacked) return;
-        if (pos == CardManager.position.graveyard || pos == CardManager.position.tavern) return;
-        Indicator.instance.cancle();
-        HandOrganizer.Instance.TogglelittleSelectCard(this);
+        StartCoroutine(MX());
     }
-
+    IEnumerator MX()
+    {
+        yield return new WaitForEndOfFrame();
+        if (suitChoosen) yield break;
+        if (pos == CardManager.position.graveyard || pos == CardManager.position.tavern) yield break;
+        Indicator.instance.cancle();
+        HandOrganizer.Instance.TogglelittleSelectCard(this, false);
+    }
     public virtual void MouseClick()
     {
         if (!selectable) return;
@@ -90,7 +106,7 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
         canmove = false;
         if (pos == CardManager.position.hand)
         {
-            HandOrganizer.Instance.ToggleSelectCard(this);
+            HandOrganizer.Instance.ToggleSelectCard(this,true);
         }
     }
 
@@ -113,6 +129,13 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
             {
                 SuitsIcon[i].gameObject.SetActive(true);
                 SuitsIcon[i].materials[0].SetTexture("_mt", card.suits[i].icon);
+                SuitTeller st = SuitsIcon[i].gameObject.GetComponent<SuitTeller>();
+                if (st == null)
+                {
+                    continue;
+                }
+                st.ThisSuit = card.suits[i];
+                st.Des = st.ThisSuit.Description;
             }
             else
             {

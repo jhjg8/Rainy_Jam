@@ -34,6 +34,13 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
             {
                 SuitsIcon[i].gameObject.SetActive(true);
                 SuitsIcon[i].materials[0].SetTexture("_mt", card.suits[i].icon);
+                SuitTeller st = SuitsIcon[i].gameObject.GetComponent<SuitTeller>();
+                if (st == null)
+                {
+                    continue;
+                }
+                st.ThisSuit = card.suits[i];
+                st.Des = st.ThisSuit.DescriptionForEnemy;
             }
             else
             {
@@ -65,7 +72,7 @@ public class EnemyCardObject : MonoBehaviour, IMouseInteractAble
         {
             suitss += $"{s.Name}, ";
         }
-        Indicator.instance.Move(transform, card.cardname, suitss, false);
+        Indicator.instance.Move(transform, card.cardname, suitss, Color.red);
     }
 
     public virtual void MouseExit()

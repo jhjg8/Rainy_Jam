@@ -70,49 +70,48 @@ public class HandOrganizer : MonoBehaviour
     /// Handles the selection/deselection click logic.
     /// Call this when a card is clicked without dragging.
     /// </summary>
-    public void ToggleSelectCard(CardObj card)
+    public void ToggleSelectCard(CardObj card , bool isit)
     {
         if (card.card.UseAble == false) return;
-        if (selectedCards.Contains(card))
-        {
-            // Second click on selected card -> Deselect
-            selectedCards.Remove(card);
-        }
-        else
-        {
-            // First click on unselected card -> Select (if limit not reached)
-            if (selectedCards.Count < maxSelectableCards)
+        if (isit)
+        { 
+            if (selectedCards.Count < maxSelectableCards && !selectedCards.Contains(card))
             {
                 selectedCards.Add(card);
             }
-            else
+            else if (selectedCards.Contains(card))
             {
-                Debug.Log("Selection limit reached!");
-                return;
+                // Second click on selected card -> Deselect
+                selectedCards.Remove(card);
+            }
+        }
+        else
+        {
+            if (selectedCards.Contains(card))
+            {
+                // Second click on selected card -> Deselect
+                selectedCards.Remove(card);
             }
         }
 
         // Refresh positions so selected card pops up/down
         OrganizeHand();
     }
-    public void TogglelittleSelectCard(CardObj card)
+    public void TogglelittleSelectCard(CardObj card, bool isit)
     {
-        if (almostselectedCards.Contains(card))
+        if (isit)
         {
-            // Second click on selected card -> Deselect
-            almostselectedCards.Remove(card);
-        }
-        else
-        {
-            // First click on unselected card -> Select (if limit not reached)
-            if (almostselectedCards.Count < maxSelectableCards)
+            if (almostselectedCards.Count < maxSelectableCards && !almostselectedCards.Contains(card))
             {
                 almostselectedCards.Add(card);
             }
-            else
+        }
+        else
+        {
+            if (almostselectedCards.Contains(card))
             {
-                Debug.Log("Selection limit reached!");
-                return;
+                // Second click on selected card -> Deselect
+                almostselectedCards.Remove(card);
             }
         }
 

@@ -73,6 +73,7 @@ public class ShopCameraManager : MonoBehaviour
             };
 
             manager.Transition(transitionSettings, 3f);
+            SoundManager.Instance.ChangeBgm(1);
         }
         else
         {
@@ -84,6 +85,7 @@ public class ShopCameraManager : MonoBehaviour
             };
 
             manager.Transition(transitionSettings, 3f);
+            SoundManager.Instance.ChangeBgm(0);
         }
     }
 

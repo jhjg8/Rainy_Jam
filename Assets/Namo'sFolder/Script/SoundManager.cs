@@ -2,87 +2,76 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager Instance;
+    // 1. กำหนด Instance เพื่อทำเป็น Singleton ให้สคริปต์อื่นเรียกใช้ได้ง่ายๆ
+    public static SoundManager Instance { get; private set; }
 
-    [Header("Audio Sources")]
-    public AudioSource bgmSource;
-    public AudioSource sfxSource;
-    public AudioSource pitchSfxSource;
-
-    [Header("BGM Clips")]
-    public AudioClip menuBGM;
-    public AudioClip gameBGM;
-    public AudioClip shopBGM; // เพิ่ม BGM ร้านค้า
-
-    [Header("SFX Clips (Interact & Actions)")]
-    public AudioClip interactCardSFX;
-    public AudioClip attackSFX;
-    public AudioClip defenseSFX;
-    public AudioClip damageSFX;
-
+    [Header("Audio Clips")]
+    [Tooltip("ใส่ไฟล์เสียงต่างๆ ลงในช่องนี้")]
+    [SerializeField] private AudioClip[] sfxClips;
+    public AudioSource Bgm;
     private void Awake()
     {
-        if (Instance == null)
+        // 2. ตรวจสอบการเป็น Singleton
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Destroy(gameObject); // ถ้ามี Manager ซ้ำ ให้ลบตัวที่เพิ่งเกิดใหม่ทิ้ง
+            return;
         }
-        else
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // ป้องกันไม่ให้ Manager ถูกทำลายเมื่อเปลี่ยน Scene (ตัวเลือกเสริม)
+    }
+
+    /// <summary>
+    /// เล่นเสียงจาก Array ตาม Index ณ ตำแหน่ง (Position) ที่ระบุ
+    /// </summary>
+    /// <param name="clipIndex">ลำดับ Index ในอาเรย์ sfxClips</param>
+    /// <param name="position">ตำแหน่ง Vector3 ในฉากที่ต้องการให้เสียงดังขึ้นมา</param>
+    /// <param name="volume">ความดังของเสียง (0.0 ถึง 1.0)</param>
+    public void PlaySoundAtPosition(int clipIndex, Vector3 position, float volume = 1f)
+    {
+        // ป้องกัน Error กรณีที่ใส่ Index เกินจำนวนที่มี
+        if (sfxClips == null || sfxClips.Length == 0)
         {
-            Destroy(gameObject);
+            Debug.LogWarning("SoundManager: ยังไม่ได้ใส่ไฟล์เสียงในอาเรย์ sfxClips เลย!");
+            return;
+        }
+
+        if (clipIndex < 0 || clipIndex >= sfxClips.Length)
+        {
+            Debug.LogWarning($"SoundManager: หาเสียง Index ที่ {clipIndex} ไม่เจอ (อ้างอิงเกินขอบเขต)");
+            return;
+        }
+
+        AudioClip clipToPlay = sfxClips[clipIndex];
+
+        if (clipToPlay != null)
+        {
+            // ใช้คำสั่งนี้เพื่อสร้างเสียงขึ้นมาเล่น ณ ตำแหน่งที่ระบุ
+            AudioSource.PlayClipAtPoint(clipToPlay, position, volume);
         }
     }
-
-    private void Start()
+    public void ChangeBgm(int clipIndex)
     {
-        PlayMenuBGM();
+        // ป้องกัน Error กรณีที่ใส่ Index เกินจำนวนที่มี
+        if (sfxClips == null || sfxClips.Length == 0)
+        {
+            Debug.LogWarning("SoundManager: ยังไม่ได้ใส่ไฟล์เสียงในอาเรย์ sfxClips เลย!");
+            return;
+        }
+
+        if (clipIndex < 0 || clipIndex >= sfxClips.Length)
+        {
+            Debug.LogWarning($"SoundManager: หาเสียง Index ที่ {clipIndex} ไม่เจอ (อ้างอิงเกินขอบเขต)");
+            return;
+        }
+
+        AudioClip clipToPlay = sfxClips[clipIndex];
+
+        if (clipToPlay != null)
+        {
+            // ใช้คำสั่งนี้เพื่อสร้างเสียงขึ้นมาเล่น ณ ตำแหน่งที่ระบุ
+            Bgm.clip = clipToPlay;
+        }
     }
-
-    // ==========================================
-    // 1. ระบบ BGM (3 หน้า)
-    // ==========================================
-
-    public void PlayMenuBGM() => PlayBGM(menuBGM);
-    public void PlayGameBGM() => PlayBGM(gameBGM);
-    public void PlayShopBGM() => PlayBGM(shopBGM); // ฟังก์ชันสลับไป BGM ร้านค้า
-
-    private void PlayBGM(AudioClip clip)
-    {
-        if (clip == null || bgmSource == null) return;
-        if (bgmSource.clip == clip && bgmSource.isPlaying) return;
-
-        bgmSource.clip = clip;
-        bgmSource.loop = true;
-        bgmSource.Play();
-    }
-
-    public void StopBGM()
-    {
-        if (bgmSource != null) bgmSource.Stop();
-    }
-
-    // ==========================================
-    // 2. ระบบ SFX (Random Pitch)
-    // ==========================================
-
-    public void PlayRandomPitchSFX(AudioClip clip, float minPitch = 0.9f, float maxPitch = 1.1f)
-    {
-        if (clip == null || pitchSfxSource == null) return;
-
-        pitchSfxSource.pitch = Random.Range(minPitch, maxPitch);
-        pitchSfxSource.PlayOneShot(clip);
-    }
-
-    public void PlayNormalSFX(AudioClip clip)
-    {
-        if (clip == null || sfxSource == null) return;
-
-        sfxSource.pitch = 1f;
-        sfxSource.PlayOneShot(clip);
-    }
-
-    public void PlayInteractCardSFX() => PlayRandomPitchSFX(interactCardSFX);
-    public void PlayAttackSFX()       => PlayRandomPitchSFX(attackSFX);
-    public void PlayDefenseSFX()      => PlayRandomPitchSFX(defenseSFX);
-    public void PlayDamageSFX()       => PlayRandomPitchSFX(damageSFX);
 }

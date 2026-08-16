@@ -26,10 +26,10 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Float: 0.1
+    - _Float: 0.01
     - _dissolveamount: 1.01
-    - _dsc: 0.5
-    - _dstr: 0.5
+    - _dsc: 0.1
+    - _dstr: -0.01
     - _eg: -1
     - _g: 0.59
     - _noisescale: 6.21

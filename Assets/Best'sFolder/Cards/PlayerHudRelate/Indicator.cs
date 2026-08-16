@@ -23,7 +23,7 @@ public class Indicator : MonoBehaviour
             cancle();
         }
     }
-    public void Move(Transform target , string name, string suits, bool blue)
+    public void Move(Transform target , string name, string suits, Color c)
     {
         if (wtc.worldTarget == target) return;
         Cg.DOKill();
@@ -31,17 +31,10 @@ public class Indicator : MonoBehaviour
         Cardside.text = name;
         Suits.text = suits;
         Cg.DOFade(1f, 0.25f).SetEase(Ease.OutSine);
-        if (blue)
-        {
-            Color color = Color.blue; 
-            targetImage.DOColor(color, 0.3f);
-        }
-        else
-        {
-            Color color = Color.red;
-            targetImage.DOColor(color, 0.3f);
-        }
-            wtc.worldTarget = target;
+        Color color = c; 
+        targetImage.DOColor(color, 0.3f);
+        
+        wtc.worldTarget = target;
     }
     public void cancle()
     {
