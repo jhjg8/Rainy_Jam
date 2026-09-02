@@ -1,3 +1,4 @@
+#if false // Disabled duplicate - Namo'sFolder/ShopCameraManager is canonical (fixes CS0101 duplicate)
 using DG.Tweening;
 using EasyTransition;
 using System;
@@ -134,3 +135,4 @@ public class ShopCameraManager : MonoBehaviour
 
     public bool IsInShop() => isInShop;
 }
+#endif

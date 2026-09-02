@@ -1,3 +1,4 @@
+#if false // Disabled duplicate - Namo'sFolder/ShopManager is canonical (fixes CS0101 duplicate)
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -48,5 +49,7 @@ public class ShopManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        Instance = this;
     }
 }
+#endif

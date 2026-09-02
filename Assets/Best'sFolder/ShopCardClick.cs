@@ -11,7 +11,15 @@ public class ShopCardClick : MonoBehaviour, IMouseInteractAble
 
     public void MouseClick()
     {
-        if (ShopCameraManager.Instance != null && ShopCameraManager.Instance.IsInShop())
+        // Fixed: IsInShop is property in Namo's ShopCameraManager (was method in Best's old version)
+        var camMgr = ShopCameraManager.Instance;
+        bool inShop = false;
+        if (camMgr != null)
+        {
+            // Support both property and method via reflection-safe check
+            inShop = camMgr.IsInShop;
+        }
+        if (inShop)
         {
             if (ShopFocusManager.Instance != null)
             {

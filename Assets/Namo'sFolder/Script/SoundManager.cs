@@ -37,11 +37,9 @@ public class SoundManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Auto-find sources if not assigned
         if (bgmSource == null) bgmSource = GetComponent<AudioSource>();
         if (bgmSource == null)
         {
-            // Create fallback sources
             bgmSource = gameObject.AddComponent<AudioSource>();
             bgmSource.loop = true;
             bgmSource.playOnAwake = false;
@@ -59,49 +57,14 @@ public class SoundManager : MonoBehaviour
             go.transform.SetParent(transform);
             pitchSfxSource = go.AddComponent<AudioSource>();
             pitchSfxSource.playOnAwake = false;
-            Debug.LogWarning("SoundManager: ยังไม่ได้ใส่ไฟล์เสียงในอาเรย์ sfxClips เลย!");
-            return;
-        }
-
-        if (clipIndex < 0 || clipIndex >= sfxClips.Length)
-        {
-            Debug.LogWarning($"SoundManager: หาเสียง Index ที่ {clipIndex} ไม่เจอ (อ้างอิงเกินขอบเขต)");
-            return;
-        }
-
-        AudioClip clipToPlay = sfxClips[clipIndex];
-
-        if (clipToPlay != null)
-        {
-            // ใช้คำสั่งนี้เพื่อสร้างเสียงขึ้นมาเล่น ณ ตำแหน่งที่ระบุ
-            AudioSource.PlayClipAtPoint(clipToPlay, position, volume);
         }
     }
-    public void ChangeBgm(int clipIndex)
+
+    private void Start()
     {
-        // ป้องกัน Error กรณีที่ใส่ Index เกินจำนวนที่มี
-        if (sfxClips == null || sfxClips.Length == 0)
-        {
-            Debug.LogWarning("SoundManager: ยังไม่ได้ใส่ไฟล์เสียงในอาเรย์ sfxClips เลย!");
-            return;
-        }
-
-        if (clipIndex < 0 || clipIndex >= sfxClips.Length)
-        {
-            Debug.LogWarning($"SoundManager: หาเสียง Index ที่ {clipIndex} ไม่เจอ (อ้างอิงเกินขอบเขต)");
-            return;
-        }
-
-        AudioClip clipToPlay = sfxClips[clipIndex];
-
-        if (clipToPlay != null)
-        {
-            // ใช้คำสั่งนี้เพื่อสร้างเสียงขึ้นมาเล่น ณ ตำแหน่งที่ระบุ
-            Bgm.clip = clipToPlay;
-        }
+        PlayMenuBGM();
     }
 
-    // --- BGM with smooth crossfade ---
     public void PlayMenuBGM() => PlayBGM(menuBGM);
     public void PlayGameBGM() => PlayBGM(gameBGM);
     public void PlayShopBGM() => PlayBGM(shopBGM);
@@ -118,7 +81,6 @@ public class SoundManager : MonoBehaviour
     private IEnumerator FadeToBGM(AudioClip newClip)
     {
         float startVol = bgmSource.volume;
-        // Fade out
         if (bgmSource.isPlaying)
         {
             float t = 0f;
@@ -136,7 +98,6 @@ public class SoundManager : MonoBehaviour
         bgmSource.volume = 0f;
         bgmSource.Play();
 
-        // Fade in
         float t2 = 0f;
         while (t2 < bgmFadeDuration * 0.5f)
         {
@@ -160,7 +121,6 @@ public class SoundManager : MonoBehaviour
         if (bgmSource != null) bgmSource.volume = bgmVolume;
     }
 
-    // --- SFX with pitch randomization 0.9-1.1 ---
     public void PlayRandomPitchSFX(AudioClip clip, float minPitch = 0.9f, float maxPitch = 1.1f)
     {
         if (clip == null || pitchSfxSource == null) return;

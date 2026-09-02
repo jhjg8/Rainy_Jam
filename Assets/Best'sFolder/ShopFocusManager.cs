@@ -1,3 +1,4 @@
+#if false // Disabled duplicate - Namo'sFolder/ShopFocusManager is canonical (fixes CS0101 + 246,17 duplicate FocusOnCard)
 using UnityEngine;
 using TMPro;
 using System.Linq;
@@ -459,3 +460,4 @@ public class ShopFocusManager : MonoBehaviour
     public void OnBackButton() => ExitFocus();
     public bool IsCardFocused(int index) => isFocused && focusedIndex == index;
 }
+#endif
