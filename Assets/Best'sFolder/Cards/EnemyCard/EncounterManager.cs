@@ -98,7 +98,7 @@ public class EncounterManager : MonoBehaviour
     }
     public GameObject CreateEnemyCard(Vector3 pos)
     {
-        var card = Instantiate(EnemyCard.gameObject,pos, Quaternion.Euler(0, 0, 180f));
+        var card = Instantiate(EnemyCard.gameObject,pos, Quaternion.Euler(0, 180f, 0));
         EnemyCardObject c = card.GetComponent<EnemyCardObject>();
         c.Belong = pos;
         card.name = "EnemyCard";
@@ -151,10 +151,11 @@ public class EncounterManager : MonoBehaviour
             card.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", SpadesCard[UnityEngine.Random.Range(0, SpadesCard.Count)]);
         }
         int points = UnityEngine.Random.Range(DificaultyLevel - 5, DificaultyLevel + 5) - suitsCount + 5;
-        int split = UnityEngine.Random.Range((DificaultyLevel / 4), points);
+        int split = UnityEngine.Random.Range((DificaultyLevel / 4), points) + 1;
         c.card.Health = (split * 9);
         c.card.Power = ((int)MathF.Max((float)(points - split),1f) * 4);
-
+        c.M = card.GetComponent<MeshRenderer>().materials[0].GetTexture("_mt");
+        c.CoinReward = points * 2;
         card.SetActive(true);
         return card;
     }
@@ -166,6 +167,11 @@ public class EncounterManager : MonoBehaviour
             suit.DisableForEnemy();
         }
         DificaultyLevel++;
+        if (CycleManager.Instance != null)
+        {
+            CycleManager.Instance.Coins += CurrentEnemy.CoinReward;
+            CycleManager.Instance.ChangePhase();
+        }
     }
     public int CalculateEnemyDmg(int dmg)
     {

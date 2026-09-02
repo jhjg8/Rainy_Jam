@@ -3,8 +3,8 @@ using System.Collections.Generic;
 public class Decker : MonoBehaviour
 {
     public List<CardObj> card = new List<CardObj>();
-    [SerializeField] float spacing = 0.001f;
-    [SerializeField] Transform Deck;
+    [SerializeField]public float spacing = 0.001f;
+    [SerializeField]public Transform Deck;
     public virtual void AddCardToDeck(CardObj Co)
     {
         if (!card.Contains(Co))
@@ -37,6 +37,11 @@ public class Decker : MonoBehaviour
                 else
                 {
                     Co.selectable = false;
+                }
+                
+                if (Co.canmove)
+                {
+                    Co.ResetPos();
                 }
             }
         }

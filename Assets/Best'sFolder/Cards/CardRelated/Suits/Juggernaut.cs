@@ -20,9 +20,11 @@ public class Juggernaut : Suit
     }
     public void DamageBoost(CardAttackerEvent payload)
     {
-        if (!payload.Card.suits.Contains(this)) return;
-
-        EncounterManager.instance.CalculatePlayerDamage += BoostDamage;
+        EncounterManager.instance.CalculatePlayerDamage -= BoostDamage;
+        if (payload.Card.suits.Contains(this))
+        {
+            EncounterManager.instance.CalculatePlayerDamage += BoostDamage;
+        }
     }
     public int BoostDamage(int value) 
     { 

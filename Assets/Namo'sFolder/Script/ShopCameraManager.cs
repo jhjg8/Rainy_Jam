@@ -2,80 +2,143 @@ using UnityEngine;
 
 public class ShopCameraManager : MonoBehaviour
 {
-    public static ShopCameraManager Instance;
+    public static ShopCameraManager Instance { get; private set; }
 
-    [Header("Camera Positions (ลาก Transform มาใส่)")]
-    public Transform gameCameraPos; // ตำแหน่งกล้องตอนเล่นเกมปกติ
-    public Transform shopCameraPos; // ตำแหน่งกล้องตอนส่องร้านค้า
+    [Header("Camera Positions")]
+    public Transform gameCameraPos;
+    public Transform shopCameraPos;
 
     [Header("Movement Settings")]
-    public float moveSpeed = 5f;    // ความเร็วในการเลื่อนกล้อง
+    [Range(1f, 20f)] public float moveSpeed = 5f;
+    [Tooltip("Snap threshold to consider arrival")]
+    public float snapThreshold = 0.01f;
 
     private Transform targetPos;
     private bool isInShop = false;
+    private bool isPausedForFocus = false;
+    private Quaternion targetRot;
+    private Vector3 targetVec;
+
+    public bool IsInShop => isInShop;
+    public bool IsPausedForFocus => isPausedForFocus;
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
     }
 
     private void Start()
     {
-        // เริ่มต้นให้เป้าหมายกล้องอยู่ที่มุมมองเกมหลัก
         if (gameCameraPos != null)
         {
             targetPos = gameCameraPos;
-            transform.position = gameCameraPos.position;
-            transform.rotation = gameCameraPos.rotation;
+            targetVec = gameCameraPos.position;
+            targetRot = gameCameraPos.rotation;
+            transform.SetPositionAndRotation(targetVec, targetRot);
+        }
+        else
+        {
+            targetVec = transform.position;
+            targetRot = transform.rotation;
         }
     }
 
     private void Update()
     {
-        if (targetPos == null) return;
+        if (isPausedForFocus) return;
+        if (targetPos != null)
+        {
+            targetVec = targetPos.position;
+            targetRot = targetPos.rotation;
+        }
 
-        // เลื่อนตำแหน่งและหมุนกล้องไปยังเป้าหมายอย่างนุ่มนวล (Smooth Transition)
-        transform.position = Vector3.Lerp(transform.position, targetPos.position, Time.deltaTime * moveSpeed);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetPos.rotation, Time.deltaTime * moveSpeed);
+        // Smooth lerp with snap
+        transform.position = Vector3.Lerp(transform.position, targetVec, Time.deltaTime * moveSpeed);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * moveSpeed);
+
+        if (Vector3.Distance(transform.position, targetVec) < snapThreshold)
+            transform.position = targetVec;
+        if (Quaternion.Angle(transform.rotation, targetRot) < 0.1f)
+            transform.rotation = targetRot;
     }
 
-    // ฟังก์ชันสำหรับผูกกับปุ่มกด Shop (กดสลับไป-มา)
     public void ToggleShop()
     {
-        if (isInShop)
-        {
-            GoToGame();
-        }
-        else
-        {
-            GoToShop();
-        }
+        if (isInShop) GoToGame();
+        else GoToShop();
     }
 
-    // สั่งย้ายกล้องไปที่ร้านค้า
     public void GoToShop()
     {
-        if (shopCameraPos == null) return;
-
-        targetPos = shopCameraPos;
-        isInShop = true;
-
-        // สั่ง ShopManager ให้สร้างการ์ดสุ่ม 8 ใบเมื่อเปิดเข้า Shop (ถ้าต้องการ)
-        if (ShopManager.Instance != null)
+        if (shopCameraPos == null)
         {
-            ShopManager.Instance.GenerateShopItems();
+            Debug.LogWarning("[ShopCameraManager] shopCameraPos not assigned", this);
+            return;
         }
+        targetPos = shopCameraPos;
+        targetVec = shopCameraPos.position;
+        targetRot = shopCameraPos.rotation;
+        isInShop = true;
+        isPausedForFocus = false;
+
+        // Trigger shop generation
+        if (ShopManager.Instance != null)
+            ShopManager.Instance.GenerateShopItems();
+        else
+            Debug.LogWarning("[ShopCameraManager] ShopManager.Instance null on GoToShop", this);
+
+        // BGM transition
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayShopBGM();
     }
 
-    // สั่งย้ายกล้องกลับไปที่เกม
     public void GoToGame()
     {
-        if (gameCameraPos == null) return;
+        if (gameCameraPos == null)
+        {
+            Debug.LogWarning("[ShopCameraManager] gameCameraPos not assigned", this);
+            return;
+        }
+        // If focused, exit focus first
+        if (ShopFocusManager.Instance != null && ShopFocusManager.Instance.IsFocused)
+            ShopFocusManager.Instance.ExitFocus();
 
         targetPos = gameCameraPos;
+        targetVec = gameCameraPos.position;
+        targetRot = gameCameraPos.rotation;
         isInShop = false;
+        isPausedForFocus = false;
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayGameBGM();
     }
 
-    // เช็กสถานะปัจจุบัน
-    public bool IsInShop() => isInShop;
+    // Called by ShopFocusManager to take over camera
+    public void SetFocusTarget(Vector3 position, Quaternion rotation)
+    {
+        targetPos = null; // detach from transform
+        targetVec = position;
+        targetRot = rotation;
+        isPausedForFocus = false; // still lerp, but to custom position
+    }
+
+    public void PauseForFocus(bool pause) => isPausedForFocus = pause;
+
+    public void ReturnToShopPosition()
+    {
+        if (shopCameraPos == null) return;
+        targetPos = shopCameraPos;
+        targetVec = shopCameraPos.position;
+        targetRot = shopCameraPos.rotation;
+        isPausedForFocus = false;
+    }
+
+    // Legacy API
+    public bool IsInShopLegacy() => isInShop;
+    public bool IsInShopMethod() => isInShop;
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+
 [CreateAssetMenu(fileName = "Heart", menuName = "Card/Suits/Heart")]
 public class Heart : Suit
 {
@@ -6,32 +7,34 @@ public class Heart : Suit
     {
         EventBus<CardAttackerEvent>.Register(Heal);
     }
+
     public override void Disable()
     {
         EventBus<CardAttackerEvent>.Unregister(Heal);
     }
+
     public override void EnableForEnemy()
     {
         Disable();
     }
+
     public override void DisableForEnemy()
     {
         Enable();
     }
+
     public void Heal(CardAttackerEvent payload)
     {
+        // 1. Only run if the attacking card is a Heart
         if (!payload.Card.suits.Contains(this)) return;
+
+        // 2. Shuffle the graveyard first so healing/reviving pulls random cards
         Graveyard.instance.Shuffle();
-        for (int i = 0; i < payload.Card.Rank; i++)
-        {
-            if (Graveyard.instance.card.Count > 0)
-            {
-                CardObj cobj = Graveyard.instance.card[Graveyard.instance.card.Count - 1];
 
-                Graveyard.instance.RemoveCardFromDeck(cobj);
+        // 3. Determine how many cards to recover based on the card's rank
+        int numToHeal = payload.Card.Rank;
 
-                Tavern.instance.AddCardToDeck(cobj);
-            }
-        }
+        // 4. Use the async Healcard method you already built in PlayManager!
+        PlayManager.instance.Healcard(numToHeal);
     }
 }

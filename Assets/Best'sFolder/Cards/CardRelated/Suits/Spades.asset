@@ -15,4 +15,5 @@ MonoBehaviour:
   id: Spa
   Name: Spades
   Description: 'Lower enemy''s dmg on player (Rank depended) '
+  DescriptionForEnemy: Disable Spades suit
   icon: {fileID: 2800000, guid: 1325dcc7f2ee5fd438894d0ae44725ed, type: 3}

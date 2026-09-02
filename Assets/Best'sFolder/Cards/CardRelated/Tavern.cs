@@ -19,6 +19,9 @@ public class Tavern : Decker
             Co.pos = CardManager.position.tavern;
             card.Add(Co);
         }
+        OrganizeDeck();
+        Co.Belong = Deck.position;
+        Co.ResetPos();
         EventBus<CardMoveToTavern>.Raise(new CardMoveToTavern { Card = Co.card });
         Co.Hide();
     }
