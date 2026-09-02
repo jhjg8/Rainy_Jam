@@ -20,7 +20,7 @@ public class ShopFocusManager : MonoBehaviour
     [Tooltip("Legacy combined info (kept for backward compat)")]
     public TextMeshProUGUI cardInfoText;
     public TextMeshProUGUI cardPriceText;
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
+
     [Header("Detailed TMP Fields (optional - if assigned, cardInfoText is split)")]
     public TextMeshProUGUI cardNameText;
     public TextMeshProUGUI cardRankText;
@@ -28,9 +28,6 @@ public class ShopFocusManager : MonoBehaviour
     public TextMeshProUGUI cardSuitsText;
     public TextMeshProUGUI cardEnchantedText;
     public TextMeshProUGUI cardGoldText;
-=======
-    public TextMeshProUGUI playerCoinsText; // Drag your Coins TextMeshPro here
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
 
     [Header("Buttons (bottom-right)")]
     public UnityEngine.UI.Button purchaseButton;
@@ -48,7 +45,6 @@ public class ShopFocusManager : MonoBehaviour
     private Vector3 preFocusCamPos;
     private Quaternion preFocusCamRot;
     private Vector3 targetCamPos;
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
     private Quaternion targetCamRot;
     private bool hasPreFocus = false;
     private float lastScrollTime = -999f;
@@ -56,15 +52,11 @@ public class ShopFocusManager : MonoBehaviour
 
     public int FocusedIndex => focusedIndex;
     public bool IsFocused => isFocused;
-=======
-    private int focusedIndex = -1;
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
 
         if (cameraTransform == null)
         {
@@ -88,17 +80,15 @@ public class ShopFocusManager : MonoBehaviour
     {
         if (purchaseButton != null) purchaseButton.onClick.RemoveListener(PurchaseFocusedCard);
         if (backButton != null) backButton.onClick.RemoveListener(ExitFocus);
-=======
         targetCamPos = transform.position;
 
         if (focusUIPanel != null)
             focusUIPanel.SetActive(false);
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
     }
 
     private void Update()
     {
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
+
         if (isFocused)
         {
             if (Input.GetKeyDown(KeyCode.Escape)) { ExitFocus(); return; }
@@ -116,7 +106,9 @@ public class ShopFocusManager : MonoBehaviour
     }
 
     private void HandleOutsideClick()
-=======
+    {
+        
+    
         transform.position = Vector3.Lerp(transform.position, targetCamPos, Time.deltaTime * moveSpeed);
 
         // Display player coins continuously
@@ -127,13 +119,11 @@ public class ShopFocusManager : MonoBehaviour
     }
 
     public void FocusOnCard(int index)
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
     {
         if (!Input.GetMouseButtonDown(0)) return;
         // Ignore click over UI
         if (UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
 
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
         // Raycast from camera: if we hit the focused card, ignore (second click = purchase handled by ShopCardInput)
         var cam = cameraTransform != null ? cameraTransform.GetComponent<Camera>() : null;
         if (cam == null) cam = Camera.main;
@@ -141,12 +131,11 @@ public class ShopFocusManager : MonoBehaviour
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, 50f))
-=======
         focusedIndex = index;
 
         // Hide other cards
         for (int i = 0; i < ShopManager.Instance.shopCards.Count; i++)
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
+
         {
             if (ShopManager.Instance != null && focusedIndex >= 0 && focusedIndex < ShopManager.Instance.shopCards.Count)
             {
@@ -225,7 +214,6 @@ public class ShopFocusManager : MonoBehaviour
             }
         }
 
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
         focusedIndex = newIndex;
         var targetGO = ShopManager.Instance.shopCards[newIndex];
         if (targetGO == null) return;
@@ -237,13 +225,10 @@ public class ShopFocusManager : MonoBehaviour
         targetCamPos = cardPos + offset;
         Vector3 dir = (cardPos - targetCamPos).normalized;
         targetCamRot = dir.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dir, Vector3.up) : cardRot;
-=======
         Vector3 cardPos = ShopManager.Instance.shopCards[index].transform.position;
         targetCamPos = new Vector3(cardPos.x, cardPos.y, cardPos.z + focusOffsetZ);
 
         if (focusUIPanel != null) focusUIPanel.SetActive(true);
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
-
         // Temporarily faster lerp for scroll
         moveSpeed = scrollFocusSpeed;
         if (ShopCameraManager.Instance != null)
@@ -267,7 +252,6 @@ public class ShopFocusManager : MonoBehaviour
 
         if (cameraTransform != null)
         {
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
             preFocusCamPos = cameraTransform.position;
             preFocusCamRot = cameraTransform.rotation;
             hasPreFocus = true;
@@ -277,10 +261,6 @@ public class ShopFocusManager : MonoBehaviour
             preFocusCamPos = ShopCameraManager.Instance.transform.position;
             preFocusCamRot = ShopCameraManager.Instance.transform.rotation;
             hasPreFocus = true;
-=======
-            string suitNames = string.Join(", ", cardObj.card.suits.Select(s => s.Name));
-            cardInfoText.text = $"{cardObj.card.cardname}\nRank: {cardObj.card.Rank}\nSuits: {suitNames}";
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
         }
 
         focusedIndex = index;
@@ -379,7 +359,6 @@ public class ShopFocusManager : MonoBehaviour
         }
         if (cardPriceText != null)
         {
-<<<<<<< HEAD:Assets/Namo'sFolder/Script/ShopFocusManager.cs
             cardPriceText.text = priceStr;
             cardPriceText.color = canAfford ? Color.white : Color.red;
         }
@@ -437,7 +416,6 @@ public class ShopFocusManager : MonoBehaviour
             if (camShake != null) camShake.Shake(0.08f, 1.5f, 0.15f);
             // Refresh panel to show red price
             UpdateDetailsPanel(focusedIndex);
-=======
             int price = ShopManager.Instance.cardPrices[index];
             cardPriceText.text = $"Price: {price} Coins";
         }
@@ -475,7 +453,6 @@ public class ShopFocusManager : MonoBehaviour
         if (ShopCameraManager.Instance != null && ShopCameraManager.Instance.shopCameraPos != null)
         {
             targetCamPos = ShopCameraManager.Instance.shopCameraPos.position;
->>>>>>> 7eabcef9c22098e716967eff4cf76a423e578b34:Assets/Best'sFolder/ShopFocusManager.cs
         }
     }
 
