@@ -89,7 +89,8 @@ public class ShopFocusManager : MonoBehaviour
             HandleScrollWheel();
         }
 
-        if (isFocused && ShopCameraManager.Instance != null) return;
+        // Delegate all camera movement to ShopCameraManager if it exists (prevents dual-lerp spinning)
+        if (ShopCameraManager.Instance != null) return;
         if (cameraTransform == null) return;
         if (isFocused || hasPreFocus)
         {
