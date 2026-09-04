@@ -25,6 +25,14 @@ public class ShopManager : MonoBehaviour
     public int playerGold = 100;
     public int startingGold = 100;
 
+    [Header("Face Cards Pool (12 = 4 suits x Jack/Queen/King)")]
+    [Tooltip("When enabled, shop only spawns Jack/Queen/King of Clubs/Diamonds/Hearts/Spades")]
+    public bool useFaceCardsOnly = true;
+    [Tooltip("Ranks for face cards: 11=Jack, 12=Queen, 13=King")]
+    public int[] faceRanks = new int[] { 11, 12, 13 };
+    [Tooltip("If true, ensure 8 cards are unique among the 12 pool (no duplicates)")]
+    public bool uniqueFaceCards = false;
+
     [Header("Entrance Animation")]
     [Range(0.02f, 0.2f)] public float staggerDelay = 0.075f;
     public float entranceDuration = 0.38f;
@@ -76,16 +84,50 @@ public class ShopManager : MonoBehaviour
         int di = GetDifficultyLevel();
         int diHalf = di / 2;
 
-        int minRank = BaseRankMin + diHalf;
-        int maxRank = BaseRankMax + diHalf;
-
+        // Build 12-pool logic vs DI range logic
         List<int> generatedRanks = new List<int>(ShopSize);
-        for (int i = 0; i < ShopSize; i++)
+        List<int> generatedSuitIndices = new List<int>(ShopSize); // 0=Club,1=Diamond,2=Heart,3=Spade
+
+        if (useFaceCardsOnly && faceRanks != null && faceRanks.Length > 0)
         {
-            generatedRanks.Add(Random.Range(minRank, maxRank + 1));
+            // Optional unique sampling without replacement for 8 of 12
+            List<Vector2Int> pool = new List<Vector2Int>(); // x=suitIdx, y=rankIdx
+            for (int s = 0; s < 4; s++)
+                for (int r = 0; r < faceRanks.Length; r++)
+                    pool.Add(new Vector2Int(s, r));
+
+            if (uniqueFaceCards) pool = pool.OrderBy(x => Random.value).ToList();
+
+            for (int i = 0; i < ShopSize; i++)
+            {
+                Vector2Int pick;
+                if (uniqueFaceCards && pool.Count > 0)
+                {
+                    pick = pool[0];
+                    pool.RemoveAt(0);
+                }
+                else
+                {
+                    int suitIdx = Random.Range(0, 4);
+                    int rankIdx = Random.Range(0, faceRanks.Length);
+                    pick = new Vector2Int(suitIdx, rankIdx);
+                }
+                generatedSuitIndices.Add(pick.x);
+                generatedRanks.Add(faceRanks[pick.y]);
+            }
+        }
+        else
+        {
+            int minRank = BaseRankMin + diHalf;
+            int maxRank = BaseRankMax + diHalf;
+            for (int i = 0; i < ShopSize; i++)
+            {
+                generatedRanks.Add(Random.Range(minRank, maxRank + 1));
+                generatedSuitIndices.Add(-1); // -1 means use CalculateSuitsForCard random base
+            }
         }
 
-        int lowestRank = generatedRanks.Count > 0 ? generatedRanks.Min() : minRank;
+        int lowestRank = generatedRanks.Count > 0 ? generatedRanks.Min() : (faceRanks.Length > 0 ? faceRanks[0] : 1);
         bool lowestRankEnchantedAssigned = false;
 
         if (entranceCurve == null || entranceCurve.length == 0)
@@ -100,8 +142,18 @@ public class ShopManager : MonoBehaviour
             Vector3 spawnPos = GetSpawnPosition(i);
             Quaternion spawnRot = GetSpawnRotation(i);
             int currentRank = generatedRanks[i];
+            int forcedSuitIdx = (generatedSuitIndices.Count > i) ? generatedSuitIndices[i] : -1;
 
-            List<Suit> cardSuits = CalculateSuitsForCard(currentRank, di, lowestRank, ref lowestRankEnchantedAssigned);
+            List<Suit> cardSuits;
+            if (useFaceCardsOnly && forcedSuitIdx >= 0)
+            {
+                // Force exact suit from 12-pool: single base suit (Club/Diamond/Heart/Spade), no extra enchanted stacking for clean 12
+                cardSuits = GetSuitsForFaceCard(forcedSuitIdx);
+            }
+            else
+            {
+                cardSuits = CalculateSuitsForCard(currentRank, di, lowestRank, ref lowestRankEnchantedAssigned);
+            }
 
             GameObject cardObjGO = null;
             try
@@ -299,6 +351,16 @@ public class ShopManager : MonoBehaviour
         }
 
         return selectedSuits;
+    }
+
+    private List<Suit> GetSuitsForFaceCard(int suitIndex)
+    {
+        var list = new List<Suit>();
+        var allSuits = CardManager.instance != null ? CardManager.instance.allsuits : null;
+        if (allSuits == null || allSuits.Count == 0) return list;
+        int idx = Mathf.Clamp(suitIndex, 0, Mathf.Min(3, allSuits.Count - 1));
+        list.Add(allSuits[idx]); // 0:Club, 1:Diamond, 2:Heart, 3:Spade
+        return list;
     }
 
     public bool CanAfford(int index)
