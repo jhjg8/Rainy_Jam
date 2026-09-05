@@ -1,4 +1,6 @@
 using UnityEngine;
+using EasyTransition;
+using DG.Tweening;
 
 public class ShopCameraManager : MonoBehaviour
 {
@@ -12,6 +14,19 @@ public class ShopCameraManager : MonoBehaviour
     [Range(1f, 20f)] public float moveSpeed = 5f;
     [Tooltip("Snap threshold to consider arrival")]
     public float snapThreshold = 0.01f;
+
+    [Header("UI Panels (auto-hide hand/fight in shop)")]
+    public GameObject shopUIPanel;
+    public GameObject fightUIPanel;
+    [Tooltip("Optional: hide Hand/Field root objects in shop to fix 'hand still showing'")]
+    public GameObject handRoot;
+    public GameObject fieldRoot;
+
+    [Header("Transition (same as Main Menu Play)")]
+    [Tooltip("Drag same TransitionSettings used by Main Menu SceneTransitionManager for smooth circle wipe")]
+    public TransitionSettings shopTransition;
+    public float transitionDelay = 0f;
+    public bool useTransition = true;
 
     private Transform targetPos;
     private bool isInShop = false;
@@ -69,6 +84,12 @@ public class ShopCameraManager : MonoBehaviour
 
     public void ToggleShop()
     {
+        // Route through CycleManager for correct win->shop->next round flow
+        if (CycleManager.Instance != null)
+        {
+            CycleManager.Instance.ChangePhase();
+            return;
+        }
         if (isInShop) GoToGame();
         else GoToShop();
     }
@@ -80,21 +101,47 @@ public class ShopCameraManager : MonoBehaviour
             Debug.LogWarning("[ShopCameraManager] shopCameraPos not assigned", this);
             return;
         }
-        targetPos = shopCameraPos;
-        targetVec = shopCameraPos.position;
-        targetRot = shopCameraPos.rotation;
-        isInShop = true;
-        isPausedForFocus = false;
 
-        // Trigger shop generation
+        // Show shop UI immediately (behind circle) so it doesn't appear "inactive for few sec"
+        if (shopUIPanel != null) shopUIPanel.SetActive(true);
+        if (fightUIPanel != null) fightUIPanel.SetActive(false);
+        SetHandVisibility(false);
+
+        // Generate shop cards BEFORE transition so they are ready behind circle
         if (ShopManager.Instance != null)
+        {
+            bool hasPos = ShopManager.Instance.cardSpawnPositions != null && ShopManager.Instance.cardSpawnPositions.Length == 8 && ShopManager.Instance.cardSpawnPositions[0] != null;
+            if (!hasPos) Debug.LogWarning("[ShopCameraManager] ShopManager.cardSpawnPositions not assigned! Cards will spawn at 0,0,0 and be invisible from shop cam.", this);
             ShopManager.Instance.GenerateShopItems();
-        else
-            Debug.LogWarning("[ShopCameraManager] ShopManager.Instance null on GoToShop", this);
+        }
 
-        // BGM transition
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayShopBGM();
+        System.Action doCamera = () =>
+        {
+            targetPos = shopCameraPos;
+            targetVec = shopCameraPos.position;
+            targetRot = shopCameraPos.rotation;
+            isInShop = true;
+            isPausedForFocus = false;
+
+            if (CycleManager.Instance != null) CycleManager.Instance.CurrentPhase = CycleManager.Phase.BuyPhase;
+
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.PlayShopBGM();
+        };
+
+        // If transition already running (e.g., spam click), do direct move to avoid freeze
+        if (useTransition && shopTransition != null && TransitionManager.Instance() != null && !TransitionManager.Instance().IsRunning)
+        {
+            var mgr = TransitionManager.Instance();
+            UnityEngine.Events.UnityAction onCut = null;
+            onCut = () => { doCamera(); mgr.onTransitionCutPointReached -= onCut; };
+            mgr.onTransitionCutPointReached += onCut;
+            mgr.Transition(shopTransition, transitionDelay);
+        }
+        else
+        {
+            doCamera();
+        }
     }
 
     public void GoToGame()
@@ -104,18 +151,57 @@ public class ShopCameraManager : MonoBehaviour
             Debug.LogWarning("[ShopCameraManager] gameCameraPos not assigned", this);
             return;
         }
-        // If focused, exit focus first
         if (ShopFocusManager.Instance != null && ShopFocusManager.Instance.IsFocused)
             ShopFocusManager.Instance.ExitFocus();
 
-        targetPos = gameCameraPos;
-        targetVec = gameCameraPos.position;
-        targetRot = gameCameraPos.rotation;
-        isInShop = false;
-        isPausedForFocus = false;
+        System.Action doGame = () =>
+        {
+            targetPos = gameCameraPos;
+            targetVec = gameCameraPos.position;
+            targetRot = gameCameraPos.rotation;
+            isInShop = false;
+            isPausedForFocus = false;
 
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayGameBGM();
+            if (CycleManager.Instance != null) CycleManager.Instance.CurrentPhase = CycleManager.Phase.FightPhase;
+
+            if (shopUIPanel != null) shopUIPanel.SetActive(false);
+            if (fightUIPanel != null) fightUIPanel.SetActive(true);
+            SetHandVisibility(true);
+
+            if (ShopManager.Instance != null)
+                ShopManager.Instance.ClearShop();
+
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.PlayGameBGM();
+        };
+
+        if (useTransition && shopTransition != null && TransitionManager.Instance() != null && !TransitionManager.Instance().IsRunning)
+        {
+            var mgr = TransitionManager.Instance();
+            UnityEngine.Events.UnityAction onCut = null;
+            onCut = () => { doGame(); mgr.onTransitionCutPointReached -= onCut; };
+            mgr.onTransitionCutPointReached += onCut;
+            mgr.Transition(shopTransition, transitionDelay);
+        }
+        else
+        {
+            doGame();
+        }
+    }
+
+    private void SetHandVisibility(bool visible)
+    {
+        // FIX: Only hide fight UI roots, never hide shop roots
+        if (handRoot == null && HandOrganizer.Instance != null) handRoot = HandOrganizer.Instance.gameObject;
+        if (fieldRoot == null && Field.Instance != null) fieldRoot = Field.Instance.gameObject;
+        // Safety: if handRoot mis-assigned to non-HandOrganizer, fix it
+        if (handRoot != null && handRoot.GetComponent<HandOrganizer>() == null && HandOrganizer.Instance != null) handRoot = HandOrganizer.Instance.gameObject;
+        if (handRoot != null) handRoot.SetActive(visible);
+        if (fieldRoot != null) fieldRoot.SetActive(visible);
+        if (DisplayField.Instance != null) DisplayField.Instance.gameObject.SetActive(visible);
+        // Do NOT per-card SetActive(false) — it made hand "gone for some rounds" because new draws stay hidden
+        // Hand cards stay visible via root, just hidden when root hidden
+        if (!visible && Indicator.instance != null) Indicator.instance.cancle();
     }
 
     // Called by ShopFocusManager to take over camera

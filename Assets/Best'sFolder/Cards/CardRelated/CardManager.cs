@@ -96,13 +96,15 @@ public class CardManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        if (template != null) template.SetActive(false); // hide reference prefab (was showing as extra 'Card' in scene)
     }
     private void Start()
     {
         foreach (Suit s in allsuits)
         {
-            s.Enable();
+            if (s != null) s.Enable();
         }
+        if (template != null) template.SetActive(false);
     }
     public GameObject createObj(int rank, Vector3 pos,List<Suit> suits)
     {
@@ -117,28 +119,30 @@ public class CardManager : MonoBehaviour
         c.ResetPos();
         n.name = "Card";
         c.card.cardname = names[Random.Range(0, names.Length)];
+        c.card.UseAble = true; // FIX: ensure usable (was showing "not usable" due to prefab default)
         
         var firstSuit = c.card.suits[0];
         Texture randomtexture = null;
-        if (firstSuit == CardManager.instance.allsuits[0])
+        var mr = n.GetComponent<MeshRenderer>();
+        if (firstSuit == CardManager.instance.allsuits[0] && CardClub.Count > 0)
         {
             randomtexture = CardClub[UnityEngine.Random.Range(0, CardClub.Count)];
-            n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardClub[UnityEngine.Random.Range(0, CardClub.Count)]);
+            mr.materials[0].SetTexture("_mt", randomtexture);
         }
-        else if (firstSuit == CardManager.instance.allsuits[1])
+        else if (firstSuit == CardManager.instance.allsuits[1] && CardDiamond.Count > 0)
         {
             randomtexture = CardDiamond[UnityEngine.Random.Range(0, CardDiamond.Count)];
-            n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardDiamond[UnityEngine.Random.Range(0, CardDiamond.Count)]);
+            mr.materials[0].SetTexture("_mt", randomtexture);
         }
-        else if (firstSuit == CardManager.instance.allsuits[2])
+        else if (firstSuit == CardManager.instance.allsuits[2] && CardHeart.Count > 0)
         {
             randomtexture = CardHeart[UnityEngine.Random.Range(0, CardHeart.Count)];
-            n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardHeart[UnityEngine.Random.Range(0, CardHeart.Count)]);
+            mr.materials[0].SetTexture("_mt", randomtexture);
         }
-        else if (firstSuit == CardManager.instance.allsuits[3])
+        else if (firstSuit == CardManager.instance.allsuits[3] && CardSpades.Count > 0)
         {
             randomtexture = CardSpades[UnityEngine.Random.Range(0, CardSpades.Count)];
-            n.GetComponent<MeshRenderer>().materials[0].SetTexture("_mt", CardSpades[UnityEngine.Random.Range(0, CardSpades.Count)]);
+            mr.materials[0].SetTexture("_mt", randomtexture);
         }
         c.M = randomtexture;
         n.SetActive(true);

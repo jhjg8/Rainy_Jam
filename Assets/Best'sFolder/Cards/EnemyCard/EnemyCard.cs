@@ -109,7 +109,6 @@ public class EnemyCard : MonoBehaviour
             .SetEase(Ease.OutQuad) // Makes the dissolve look smooth
             .OnComplete(() =>
             {
-                ShopCameraManager.Instance.ToggleShop();
                 Destroy(gameObject);
             });
     }

@@ -12,6 +12,7 @@ namespace EasyTransition
         [SerializeField] private GameObject transitionTemplate;
 
         private bool runningTransition;
+        public bool IsRunning => runningTransition;
 
         public UnityAction onTransitionBegin;
         public UnityAction onTransitionCutPointReached;

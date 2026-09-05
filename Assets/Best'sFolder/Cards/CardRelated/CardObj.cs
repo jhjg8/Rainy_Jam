@@ -93,11 +93,14 @@ public class CardObj : MonoBehaviour, IMouseInteractAble
         // Cards in graveyard or tavern cannot be interacted with directly
         if (pos == CardManager.position.graveyard || pos == CardManager.position.tavern) return;
 
-        if (CycleManager.Instance != null && CycleManager.Instance.CurrentPhase == CycleManager.Phase.BuyPhase)
+        bool inShop = (CycleManager.Instance != null && CycleManager.Instance.CurrentPhase == CycleManager.Phase.BuyPhase)
+                     || (ShopCameraManager.Instance != null && ShopCameraManager.Instance.IsInShop);
+        if (inShop)
         {
             if (ShopManager.Instance != null && ShopManager.Instance.shopCards.Contains(gameObject))
             {
-                ShopFocusManager.Instance.FocusOnCard(ShopManager.Instance.shopCards.IndexOf(gameObject));
+                int idx = ShopManager.Instance.shopCards.IndexOf(gameObject);
+                if (ShopFocusManager.Instance != null) ShopFocusManager.Instance.FocusOnCard(idx);
                 return;
             }
         }

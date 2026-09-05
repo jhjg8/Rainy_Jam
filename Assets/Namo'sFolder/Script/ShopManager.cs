@@ -33,6 +33,14 @@ public class ShopManager : MonoBehaviour
     [Tooltip("If true, ensure 8 cards are unique among the 12 pool (no duplicates)")]
     public bool uniqueFaceCards = false;
 
+    [Header("Price (all same)")]
+    public bool useFixedPrice = true;
+    public int fixedPrice = 5;
+
+    [Header("Card Appearance (fix 'too big')")]
+    [Tooltip("Final scale of shop cards - test scene uses ~0.7, main game was 1.0 too big")]
+    [Range(0.3f, 1.2f)] public float shopCardScale = 0.7f;
+
     [Header("Entrance Animation")]
     [Range(0.02f, 0.2f)] public float staggerDelay = 0.075f;
     public float entranceDuration = 0.38f;
@@ -60,8 +68,20 @@ public class ShopManager : MonoBehaviour
 
     private void Start()
     {
+        // Keep the higher gold (Inspector 500 won't be overwritten to 0)
+        if (CycleManager.Instance != null) playerGold = Mathf.Max(playerGold, CycleManager.Instance.Coins);
         if (playerGold == 0) playerGold = startingGold;
-        GenerateShopItems();
+        if (CycleManager.Instance != null) CycleManager.Instance.Coins = playerGold; // sync back
+
+        if (ShopCameraManager.Instance != null && ShopCameraManager.Instance.IsInShop)
+            GenerateShopItems();
+        else
+            ClearShop();
+    }
+
+    private void OnEnable()
+    {
+        if (CycleManager.Instance != null) playerGold = Mathf.Max(playerGold, CycleManager.Instance.Coins);
     }
 
     private int GetDifficultyLevel()
@@ -206,10 +226,15 @@ public class ShopManager : MonoBehaviour
                 cardObjGO.transform.localScale = Vector3.one * entranceScaleFrom;
             }
 
-            int suitCount = cardSuits != null ? cardSuits.Count : 1;
-            int randomOffset = Random.Range(-3, 4);
-            int calculatedPrice = currentRank + (suitCount * PricePerSuit) + randomOffset + diHalf;
-            calculatedPrice = Mathf.Max(1, calculatedPrice);
+            int calculatedPrice;
+            if (useFixedPrice) calculatedPrice = Mathf.Max(1, fixedPrice);
+            else
+            {
+                int suitCount = cardSuits != null ? cardSuits.Count : 1;
+                int randomOffset = Random.Range(-3, 4);
+                calculatedPrice = currentRank + (suitCount * PricePerSuit) + randomOffset + diHalf;
+                calculatedPrice = Mathf.Max(1, calculatedPrice);
+            }
 
             shopCards.Add(cardObjGO);
             cardPrices.Add(calculatedPrice);
@@ -249,7 +274,7 @@ public class ShopManager : MonoBehaviour
         Vector3 startPos = go.transform.position;
         Vector3 endPos = targetPos;
         Vector3 startScale = go.transform.localScale;
-        Vector3 endScale = Vector3.one;
+        Vector3 endScale = Vector3.one * shopCardScale;
         Quaternion startRot = go.transform.rotation;
         Quaternion endRot = targetRot;
         float elapsed = 0f;
@@ -268,10 +293,14 @@ public class ShopManager : MonoBehaviour
         }
         if (go == null) yield break;
         go.transform.SetPositionAndRotation(endPos, endRot);
-        go.transform.localScale = Vector3.one;
+        go.transform.localScale = Vector3.one * shopCardScale;
 
         var input = go.GetComponent<ShopCardInput>();
-        if (input != null) input.SetEntranceState(true);
+        if (input != null)
+        {
+            input.SetEntranceState(true);
+            input.RefreshBase(); // update hover base to new scaled size
+        }
 
         var cardObj = go.GetComponent<CardObj>();
         if (cardObj != null)
@@ -367,7 +396,10 @@ public class ShopManager : MonoBehaviour
     {
         if (index < 0 || index >= cardPrices.Count) return false;
         if (shopCards.Count <= index || shopCards[index] == null) return false;
-        return playerGold >= cardPrices[index];
+        // Use max of both gold systems so setting either to 500 works (fixes "500 but can't buy")
+        int gold = playerGold;
+        if (CycleManager.Instance != null) gold = Mathf.Max(gold, CycleManager.Instance.Coins);
+        return gold >= cardPrices[index];
     }
 
     public int GetPrice(int index)
@@ -408,9 +440,10 @@ public class ShopManager : MonoBehaviour
         }
 
         int price = cardPrices[index];
-        if (playerGold < price)
+        int curGold = (CycleManager.Instance != null) ? CycleManager.Instance.Coins : playerGold;
+        if (curGold < price)
         {
-            Debug.Log($"[ShopManager] Not enough gold: need {price}, have {playerGold}", this);
+            Debug.Log($"[ShopManager] Not enough gold: need {price}, have {curGold}", this);
             if (SoundManager.Instance != null) SoundManager.Instance.PlayDamageSFX();
             var shaker = FindAnyObjectByType<CameraShake>();
             if (shaker != null) shaker.Shake(0.08f, 1f, 0.15f);
@@ -426,8 +459,9 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        playerGold -= price;
-        playerGold = Mathf.Max(0, playerGold);
+        if (CycleManager.Instance != null) CycleManager.Instance.Coins = Mathf.Max(0, CycleManager.Instance.Coins - price);
+        playerGold = Mathf.Max(0, playerGold - price);
+        if (CycleManager.Instance != null) playerGold = CycleManager.Instance.Coins; // sync
 
         if (Tavern.instance != null)
         {

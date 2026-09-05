@@ -6,16 +6,16 @@ using System.Collections;
 /// No friend-folder interface dependency (pure OnMouse* + collider).
 /// Attached automatically by ShopManager.
 /// </summary>
-public class ShopCardInput : MonoBehaviour
+public class ShopCardInput : MonoBehaviour, IMouseInteractAble
 {
     [Tooltip("Index in ShopManager.shopCards")]
     public int shopIndex = -1;
 
     [Header("Hover Feedback")]
-    public float hoverLift = 0.18f;
-    public float hoverScaleFactor = 1.08f;
-    public float hoverDuration = 0.13f;
-    public bool enableGlow = true;
+    [Range(0.02f, 0.3f)] public float hoverLift = 0.06f; // reduced from 0.18 to prevent disappear/culling
+    [Range(1f, 1.2f)] public float hoverScaleFactor = 1.06f;
+    public float hoverDuration = 0.12f;
+    public bool enableGlow = false; // disabled by default — was causing flicker on some shaders
     public Color glowColor = new Color(1f, 0.92f, 0.5f, 1f);
 
     private CardObj cardObj;
@@ -177,17 +177,27 @@ public class ShopCardInput : MonoBehaviour
         if (!entranceDone) return;
         if (ShopManager.Instance != null && ShopManager.Instance.IsEntranceAnimating) return;
         if (ShopCameraManager.Instance != null && !ShopCameraManager.Instance.IsInShop) return;
-        if (ShopFocusManager.Instance != null && ShopFocusManager.Instance.IsFocused)
-        {
-            // Click outside focused card will be handled by ShopFocusManager, ignore here
-            return;
-        }
+        if (ShopFocusManager.Instance != null && ShopFocusManager.Instance.IsFocused) return;
+        if (IsPointerOverButton()) return; // FIX: only block if over Button (Leave/Buy), not whole panel
         HandleClick();
+    }
+
+    private bool IsPointerOverButton()
+    {
+        if (UnityEngine.EventSystems.EventSystem.current == null) return false;
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return false;
+        var ped = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+        ped.position = Input.mousePosition;
+        var results = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll(ped, results);
+        foreach (var r in results) if (r.gameObject.GetComponent<UnityEngine.UI.Button>() != null) return true;
+        return false;
     }
 
     private void HandleClick()
     {
         if (ShopManager.Instance == null || ShopFocusManager.Instance == null) return;
+        if (IsPointerOverButton()) return;
         if (shopIndex < 0 || shopIndex >= ShopManager.Instance.shopCards.Count)
         {
             int idx = ShopManager.Instance.GetCardIndex(gameObject);
@@ -226,4 +236,10 @@ public class ShopCardInput : MonoBehaviour
         baseScale = transform.localScale;
         hasBase = true;
     }
+
+    // IMouseInteractAble for PlayerSelect raycast (ensures click works even when CardObj takes ray first)
+    public void MouseEnter() { OnMouseEnter(); }
+    public void MouseExit() { OnMouseExit(); }
+    public void MouseClick() { HandleClick(); }
+    public void MouseUp() { }
 }

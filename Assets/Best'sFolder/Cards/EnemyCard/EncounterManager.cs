@@ -124,12 +124,16 @@ public class EncounterManager : MonoBehaviour
 
             else
             {
-                while (true) {
+                int maxTries = 50;
+                while (maxTries > 0) {
+                    maxTries--;
                     Suit s = CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)];
                     if (s == null) continue;
-                    if (!c.card.suits.Contains(s)) break;
+                    if (!c.card.suits.Contains(s)) {
+                        c.card.suits.Add(s);
+                        break;
+                    }
                 }
-                c.card.suits.Add(CardManager.instance.allsuits[UnityEngine.Random.Range(4, CardManager.instance.allsuits.Count)]);
             }
         }
         Suit firstSuit = c.card.suits[0];
@@ -170,8 +174,11 @@ public class EncounterManager : MonoBehaviour
         if (CycleManager.Instance != null)
         {
             CycleManager.Instance.Coins += CurrentEnemy.CoinReward;
-            CycleManager.Instance.ChangePhase();
+            // FIX: Don't auto-enter shop — enable shop button, let player press it once (fixes "auto drag")
+            CycleManager.Instance.OnBossDefeated();
         }
+        // Hide dead enemy
+        if (CurrentEnemy != null) CurrentEnemy.gameObject.SetActive(false);
     }
     public int CalculateEnemyDmg(int dmg)
     {
