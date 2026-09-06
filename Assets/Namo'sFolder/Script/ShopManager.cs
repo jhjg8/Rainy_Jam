@@ -440,7 +440,9 @@ public class ShopManager : MonoBehaviour
         }
 
         int price = cardPrices[index];
-        int curGold = (CycleManager.Instance != null) ? CycleManager.Instance.Coins : playerGold;
+        int curGold = playerGold;
+        if (CycleManager.Instance != null) curGold = Mathf.Max(curGold, CycleManager.Instance.Coins);
+        Debug.Log($"[Shop] TryBuy price {price} have {curGold} (Cycle={CycleManager.Instance?.Coins} playerGold={playerGold})");
         if (curGold < price)
         {
             Debug.Log($"[ShopManager] Not enough gold: need {price}, have {curGold}", this);
@@ -459,9 +461,16 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        if (CycleManager.Instance != null) CycleManager.Instance.Coins = Mathf.Max(0, CycleManager.Instance.Coins - price);
-        playerGold = Mathf.Max(0, playerGold - price);
-        if (CycleManager.Instance != null) playerGold = CycleManager.Instance.Coins; // sync
+        // Deduct from the pool that actually has gold, then sync both
+        if (CycleManager.Instance != null && CycleManager.Instance.Coins >= price)
+            CycleManager.Instance.Coins -= price;
+        else if (playerGold >= price)
+            playerGold -= price;
+        else if (CycleManager.Instance != null) // fallback max case
+            CycleManager.Instance.Coins = Mathf.Max(0, curGold - price);
+
+        playerGold = Mathf.Max(0, playerGold);
+        if (CycleManager.Instance != null) { CycleManager.Instance.Coins = Mathf.Max(CycleManager.Instance.Coins, 0); playerGold = CycleManager.Instance.Coins; }
 
         if (Tavern.instance != null)
         {

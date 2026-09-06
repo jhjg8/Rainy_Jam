@@ -24,9 +24,11 @@ public class ShopFocusManager : MonoBehaviour
 
     private int focusedIndex = -1;
     private bool isFocused = false;
+    private int lastFocusedIndex = -1;
 
     public int FocusedIndex => focusedIndex;
     public bool IsFocused => isFocused;
+    public int LastFocusedIndex => lastFocusedIndex;
 
     private void Awake()
     {
@@ -67,12 +69,14 @@ public class ShopFocusManager : MonoBehaviour
 
     public void FocusOnCard(int index)
     {
-        if (ShopManager.Instance == null) return;
-        if (index < 0 || index >= ShopManager.Instance.shopCards.Count) return;
+        Debug.Log($"[Shop] FocusOnCard {index} called");
+        if (ShopManager.Instance == null) { Debug.LogWarning("[Shop] Focus no ShopManager"); return; }
+        if (index < 0 || index >= ShopManager.Instance.shopCards.Count) { Debug.LogWarning($"[Shop] Focus idx {index} out of {ShopManager.Instance.shopCards.Count}"); return; }
         var go = ShopManager.Instance.shopCards[index];
-        if (go == null) return;
+        if (go == null) { Debug.LogWarning($"[Shop] Focus card {index} null/sold"); return; }
 
         focusedIndex = index;
+        lastFocusedIndex = index;
         isFocused = true;
 
         // If focusUIPanel is same as shopUIPanel (your request), keep shop panel active - just update details
@@ -84,6 +88,7 @@ public class ShopFocusManager : MonoBehaviour
 
         UpdateDetailsPanel(index);
         if (SoundManager.Instance != null) SoundManager.Instance.PlayInteractCardSFX();
+        Debug.Log($"[Shop] Focused idx {index} isFocused {isFocused}");
     }
 
     private void UpdateDetailsPanel(int index)
@@ -132,26 +137,28 @@ public class ShopFocusManager : MonoBehaviour
     public void ExitFocus()
     {
         if (!isFocused && focusedIndex==-1 && focusUIPanel != null && !focusUIPanel.activeSelf) return;
+        Debug.Log($"[Shop] ExitFocus from idx {focusedIndex}");
         isFocused = false;
-        focusedIndex = -1;
+        // Keep lastFocusedIndex for Buy after outside click
+        // Don't reset focusedIndex to -1 immediately for Buy fallback, keep last
         bool sameAsShop = focusUIPanel != null && ShopCameraManager.Instance != null && focusUIPanel == ShopCameraManager.Instance.shopUIPanel;
-        // If same panel as shop, don't hide shop when exiting focus (keep shopping)
         if (focusUIPanel != null && !sameAsShop) focusUIPanel.SetActive(false);
         else if (focusUIPanel != null && sameAsShop)
         {
-            // Keep shop visible, just clear selection (optional hide details, but keep panel)
-            // Don't hide, just keep Buy interactable false until next click
-            if (purchaseButton != null) purchaseButton.interactable = false;
+            if (purchaseButton != null) purchaseButton.interactable = true; // keep Buy clickable
         }
+        // Don't clear focusedIndex here for Buy to use last
+        // focusedIndex = -1; // keep last
         if (SoundManager.Instance != null) SoundManager.Instance.PlayInteractCardSFX();
     }
 
     public void PurchaseFocusedCard()
     {
-        Debug.Log($"[Shop] Buy clicked isFocused={isFocused} idx={focusedIndex} canAfford={(ShopManager.Instance!=null ? ShopManager.Instance.CanAfford(focusedIndex).ToString() : "no mgr")}");
-        if (!isFocused || focusedIndex <0) { Debug.LogWarning("[Shop] Buy blocked: not focused"); return; }
+        int buyIdx = isFocused ? focusedIndex : lastFocusedIndex;
+        Debug.Log($"[Shop] Buy clicked isFocused={isFocused} idx={focusedIndex} last={lastFocusedIndex} buyIdx={buyIdx} canAfford={(ShopManager.Instance!=null && buyIdx>=0 ? ShopManager.Instance.CanAfford(buyIdx).ToString() : "no mgr")}");
+        if (buyIdx <0) { Debug.LogWarning("[Shop] Buy blocked: no card selected (click card first)"); return; }
         if (ShopManager.Instance == null) return;
-        bool ok = ShopManager.Instance.TryBuyCard(focusedIndex);
+        bool ok = ShopManager.Instance.TryBuyCard(buyIdx);
         if (ok) ExitFocus();
         else
         {

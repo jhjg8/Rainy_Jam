@@ -5,7 +5,7 @@ public class CycleManager : MonoBehaviour
     public static CycleManager Instance;
     public enum Phase { BuyPhase , FightPhase};
     public Phase CurrentPhase;
-    public int Coins;
+    public int Coins = 20; // start with 20 so you can test Buy without winning
 
     [Header("Shop Button (enable after win)")]
     public GameObject shopButton; // assign Shop button, hidden until boss defeated

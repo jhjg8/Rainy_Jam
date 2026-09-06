@@ -22,16 +22,16 @@ public class ShopBuyButtonFix : MonoBehaviour
     }
     public void Buy()
     {
-        Debug.Log($"[ShopBuyFix] Buy pressed focused={ShopFocusManager.Instance?.IsFocused} idx={ShopFocusManager.Instance?.FocusedIndex} shopNull={ShopManager.Instance==null}");
+        Debug.Log($"[ShopBuyFix] Buy pressed focused={ShopFocusManager.Instance?.IsFocused} idx={ShopFocusManager.Instance?.FocusedIndex}");
         if (ShopFocusManager.Instance != null && ShopFocusManager.Instance.IsFocused)
         {
             ShopFocusManager.Instance.PurchaseFocusedCard();
-            return;
         }
-        // Fallback: if not focused (click without selecting), buy first available shop card
-        if (ShopManager.Instance != null)
+        else
         {
-            for (int i=0;i<ShopManager.Instance.shopCards.Count;i++) if (ShopManager.Instance.shopCards[i]!=null) { Debug.Log($"[ShopBuyFix] Fallback buy idx {i}"); ShopManager.Instance.TryBuyCard(i); break; }
+            Debug.LogWarning("[Shop] Select a card first, then Buy");
+            var panel = ShopFocusManager.Instance != null ? ShopFocusManager.Instance.focusUIPanel : null;
+            if (panel != null) { var sh = panel.GetComponent<ObjectShaker>(); if (sh==null) sh=panel.AddComponent<ObjectShaker>(); sh.Shake(0.05f,2f,0.2f); }
         }
     }
 }

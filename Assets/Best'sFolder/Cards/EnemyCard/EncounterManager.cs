@@ -173,11 +173,11 @@ public class EncounterManager : MonoBehaviour
         DificaultyLevel++;
         if (CycleManager.Instance != null)
         {
-            CycleManager.Instance.Coins += CurrentEnemy.CoinReward;
-            // FIX: Don't auto-enter shop — enable shop button, let player press it once (fixes "auto drag")
+            int bonusPerWin = 20; // ensures you can afford 5-coin cards
+            CycleManager.Instance.Coins += CurrentEnemy.CoinReward + bonusPerWin;
+            Debug.Log($"[Shop] Boss defeated +{CurrentEnemy.CoinReward}+{bonusPerWin} bonus = {CycleManager.Instance.Coins} Coins");
             CycleManager.Instance.OnBossDefeated();
         }
-        // Hide dead enemy
         if (CurrentEnemy != null) CurrentEnemy.gameObject.SetActive(false);
     }
     public int CalculateEnemyDmg(int dmg)

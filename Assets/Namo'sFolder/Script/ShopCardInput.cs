@@ -196,8 +196,9 @@ public class ShopCardInput : MonoBehaviour, IMouseInteractAble
 
     private void HandleClick()
     {
+        Debug.Log($"[Shop] Card clicked idx {shopIndex} entranceDone={entranceDone} isInShop={ShopCameraManager.Instance?.IsInShop}");
         if (ShopManager.Instance == null || ShopFocusManager.Instance == null) return;
-        if (IsPointerOverButton()) return;
+        if (IsPointerOverButton()) { Debug.Log("[Shop] Card click blocked by Button"); return; }
         if (shopIndex < 0 || shopIndex >= ShopManager.Instance.shopCards.Count)
         {
             int idx = ShopManager.Instance.GetCardIndex(gameObject);
