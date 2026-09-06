@@ -46,10 +46,11 @@ public class ShopFocusManager : MonoBehaviour
     private void Update()
     {
         if (isFocused && Input.GetKeyDown(KeyCode.Escape)) ExitFocus();
+        // Force Buy to stay clickable while focused (fixes "inactive when click card")
+        if (isFocused && purchaseButton != null) purchaseButton.interactable = true;
         // Click outside to exit focus (does not leave shop)
         if (isFocused && Input.GetMouseButtonDown(0) && UnityEngine.EventSystems.EventSystem.current != null && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
-            // Raycast to see if clicked on focused card, if not, exit focus
             var cam = Camera.main;
             if (cam != null)
             {
